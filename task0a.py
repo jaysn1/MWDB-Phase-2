@@ -239,7 +239,7 @@ def serialize_data_parameters(data):
 def generate_word_dictionary(data):
     print("Loading gesture files...")
     original_df = load_all_the_component_gestures(data['directory'])
-    original_df.to_csv('intermediate/normalized.csv', index=False)
+    original_df.to_csv('intermediate/original.csv', index=False)
 
     print("Normalizing gesture files...")
     normalized_df = original_df.apply(lambda x: normalize(x), axis=1)
