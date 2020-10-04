@@ -1,0 +1,4 @@
+data/*.wrd
+data/*_vectors_*.txt
+intermediate/*
+venv/

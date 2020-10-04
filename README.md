@@ -1,4 +1,4 @@
-# MWDB Phase 1
+# MWDB Phase 2
 
 ## Prerequisites 
 - System should have **Python** and **pip package manager** installed
@@ -23,3 +23,5 @@
 > python task0a.py
 > python task0b.py
 ```
+
+All serialized objects will be generated in the intermediate folder

@@ -98,14 +98,12 @@ def combine_all_vectors(tf_vector_dictionary, idf_vector):
             for sensor_id in tf_vector_dictionary[gesture_id][component_id].keys():
                 tf_vector_tuple = tf_vector_dictionary[gesture_id][component_id][sensor_id]
                 tfidf_vector_tuple = tuple([a*b for a,b in zip(tf_vector_tuple, idf_vector_tuple)])
-                vector_list = (tf_vector_tuple, tfidf_vector_tuple)
+                vector_tuple = (tf_vector_tuple, tfidf_vector_tuple)
                 if gesture_id not in vectors:
                     vectors[gesture_id] = {}
                 if component_id not in vectors[gesture_id]:
                     vectors[gesture_id][component_id] = {}
-                if sensor_id not in vectors[gesture_id][component_id]:
-                    vectors[gesture_id][component_id][sensor_id] = {}
-                vectors[gesture_id][component_id][sensor_id] = vector_list
+                vectors[gesture_id][component_id][sensor_id] = vector_tuple
     return vectors
 
 # Delete vectors.txt file if present
