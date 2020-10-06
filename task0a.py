@@ -225,6 +225,11 @@ def serialize_word_avg_dict(word_avg_dict):
     with open("intermediate/word_avg_dict.json", "w") as write_file:
         json.dump(word_avg_dict, write_file)
 
+# Serialize word vector dictionary for future tasks
+def serialize_word_vector_dict(word_vector_dict):
+    with open("intermediate/word_vector_dict.json", "w") as write_file:
+        json.dump(word_vector_dict, write_file)
+
 # Serialize sensor average dictionary for future tasks
 def serialize_sensor_avg_std_dict(sensor_avg_std_dict):
     with open("intermediate/sensor_avg_std_dict.json", "w") as write_file:
@@ -265,6 +270,7 @@ def generate_word_dictionary(data):
     write_word_files(data['directory'], word_vector_dict, word_avg_dict, sensor_avg_std_dict)
 
     print("Serializing objects needed for future tasks...")
+    serialize_word_vector_dict(word_vector_dict)
     serialize_word_avg_dict(word_avg_dict)
     serialize_data_parameters(data)
     serialize_sensor_avg_std_dict(sensor_avg_std_dict)
