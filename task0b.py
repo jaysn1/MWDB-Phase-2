@@ -10,6 +10,14 @@ def deserialize_word_avg_dict(file_name):
         word_avg_dict = json.load(read_file)
     return word_avg_dict
 
+# Deserialize word vector dictionary
+def deserialize_word_vector_dict(file_name):
+    with open(file_name, "r") as read_file:
+        word_vector_dict = json.load(read_file)
+    for key, value in word_vector_dict.items():
+        word_vector_dict[key] = tuple(value)
+    return word_vector_dict
+
 # Deserialize data parameters
 def deserialize_data_parameters(file_name):
     with open(file_name, "r") as read_file:
@@ -27,26 +35,26 @@ def generate_word_position_dictionary(list_of_all_words):
     return word_position_dictionary
 
 # Generate set of all words in the database
-def get_set_of_words_across_the_database(word_avg_dict):
+def get_set_of_words_across_the_database(word_vector_dict):
     set_of_all_words = set()
-    for key, value in word_avg_dict.items():
+    for key, value in word_vector_dict.items():
         key_tuple = key[1:-1].split(",")
         component_id = key_tuple[0].strip(' ').strip('\'')
         gesture_id = key_tuple[1].strip(' ').strip('\'')
         sensor_id = key_tuple[2].strip(' ').strip('\'')
-        word = (component_id, sensor_id, value[1])
+        word = (component_id, sensor_id, value)
         set_of_all_words.add(word)
     return set_of_all_words
 
 # Generate TF vector
-def generate_tf_vector_dictionary(word_avg_dict, word_position_dictionary):
+def generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary):
     tf_vector_dictionary = {}
-    for key, value in word_avg_dict.items():
+    for key, value in word_vector_dict.items():
         key_tuple = key[1:-1].split(",")
         component_id = key_tuple[0].strip(' ').strip('\'')
         gesture_id = key_tuple[1].strip(' ').strip('\'')
         sensor_id = key_tuple[2].strip(' ').strip('\'')
-        word = (component_id, sensor_id, value[1])
+        word = (component_id, sensor_id, value)
         if gesture_id not in tf_vector_dictionary:
             tf_vector_dictionary[gesture_id] = {}
         if component_id not in tf_vector_dictionary[gesture_id]:
@@ -67,16 +75,16 @@ def generate_tf_vector_dictionary(word_avg_dict, word_position_dictionary):
     return tf_vector_dictionary
 
 # Generate IDF vector
-def generate_idf_vector(word_avg_dict, word_position_dictionary):
+def generate_idf_vector(word_vector_dict, word_position_dictionary):
     word_document_occurrence_dictionary = {}
     set_of_gestures = set()
     idf_vector = [0] * len(word_position_dictionary.keys())
-    for key, value in word_avg_dict.items():
+    for key, value in word_vector_dict.items():
         key_tuple = key[1:-1].split(",")
         component_id = key_tuple[0].strip(' ').strip('\'')
         gesture_id = key_tuple[1].strip(' ').strip('\'')
         sensor_id = key_tuple[2].strip(' ').strip('\'')
-        word = (component_id, sensor_id, value[1])
+        word = (component_id, sensor_id, value)
 
         if word not in word_document_occurrence_dictionary:
             word_document_occurrence_dictionary[word] = set()
@@ -138,18 +146,20 @@ def serialize_vectors_dictionary(vectors_dictionary):
 
 def generate_vectors():
     print("Deserializing objects from previous tasks...")
-    file_name = "intermediate/word_avg_dict.json"
-    word_avg_dict = deserialize_word_avg_dict(file_name)
+    # file_name = "intermediate/word_avg_dict.json"
+    # word_avg_dict = deserialize_word_avg_dict(file_name)
+    file_name = "intermediate/word_vector_dict.json"
+    word_vector_dict = deserialize_word_vector_dict(file_name)
     data_parameters_file_name = "intermediate/data_parameters.json"
     data = deserialize_data_parameters(data_parameters_file_name)
 
     print("Generating TF and TF-IDF vectors...")
-    set_of_all_words = get_set_of_words_across_the_database(word_avg_dict)
+    set_of_all_words = get_set_of_words_across_the_database(word_vector_dict)
     # Convert set of all words to list
     list_of_all_words = list(set_of_all_words)
     word_position_dictionary = generate_word_position_dictionary(list_of_all_words)
-    tf_vector_dictionary = generate_tf_vector_dictionary(word_avg_dict, word_position_dictionary)
-    idf_vector = generate_idf_vector(word_avg_dict, word_position_dictionary)
+    tf_vector_dictionary = generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary)
+    idf_vector = generate_idf_vector(word_vector_dict, word_position_dictionary)
 
     # Combine all the three representations of all gestures into one dictionary
     print("Writing vectors.txt...")
