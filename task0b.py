@@ -56,22 +56,16 @@ def generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary):
         sensor_id = key_tuple[2].strip(' ').strip('\'')
         word = (component_id, sensor_id, value)
         if gesture_id not in tf_vector_dictionary:
-            tf_vector_dictionary[gesture_id] = {}
-        if component_id not in tf_vector_dictionary[gesture_id]:
-            tf_vector_dictionary[gesture_id][component_id] = {}
-        if sensor_id not in tf_vector_dictionary[gesture_id][component_id]:
-            tf_vector_dictionary[gesture_id][component_id][sensor_id] = [0] * len(word_position_dictionary.keys())
-        tf_vector_dictionary[gesture_id][component_id][sensor_id][word_position_dictionary[word]] += 1
+            tf_vector_dictionary[gesture_id] = [0] * len(word_position_dictionary.keys())
+        tf_vector_dictionary[gesture_id][word_position_dictionary[word]] += 1
 
     for gesture_id in tf_vector_dictionary.keys():
-        for component_id in tf_vector_dictionary[gesture_id].keys():
-            for sensor_id in tf_vector_dictionary[gesture_id][component_id].keys():
-                tf_vector = tf_vector_dictionary[gesture_id][component_id][sensor_id]
-                sum = 0
-                for x in tf_vector:
-                    sum += x
-                tf_vector[:] = [x / sum for x in tf_vector]
-                tf_vector_dictionary[gesture_id][component_id][sensor_id] = tuple(tf_vector)
+        tf_vector = tf_vector_dictionary[gesture_id]
+        sum = 0
+        for x in tf_vector:
+            sum += x
+        tf_vector[:] = [x / sum for x in tf_vector]
+        tf_vector_dictionary[gesture_id] = tuple(tf_vector)
     return tf_vector_dictionary
 
 # Generate IDF vector
@@ -102,16 +96,10 @@ def combine_all_vectors(tf_vector_dictionary, idf_vector):
     idf_vector_tuple = idf_vector
     vectors = {}
     for gesture_id in tf_vector_dictionary.keys():
-        for component_id in tf_vector_dictionary[gesture_id].keys():
-            for sensor_id in tf_vector_dictionary[gesture_id][component_id].keys():
-                tf_vector_tuple = tf_vector_dictionary[gesture_id][component_id][sensor_id]
-                tfidf_vector_tuple = tuple([a*b for a,b in zip(tf_vector_tuple, idf_vector_tuple)])
-                vector_tuple = (tf_vector_tuple, tfidf_vector_tuple)
-                if gesture_id not in vectors:
-                    vectors[gesture_id] = {}
-                if component_id not in vectors[gesture_id]:
-                    vectors[gesture_id][component_id] = {}
-                vectors[gesture_id][component_id][sensor_id] = vector_tuple
+        tf_vector_tuple = tf_vector_dictionary[gesture_id]
+        tfidf_vector_tuple = tuple([a*b for a,b in zip(tf_vector_tuple, idf_vector_tuple)])
+        vector_tuple = (tf_vector_tuple, tfidf_vector_tuple)
+        vectors[gesture_id] = vector_tuple
     return vectors
 
 # Delete vectors.txt file if present
@@ -128,14 +116,8 @@ def write_vector_text_file(directory, vectors_dict):
         tfidf_vector_file_path = directory + "/tfidf_vectors_" + gesture_id + ".txt"
         f_tf = open(tf_vector_file_path, "w")
         f_tfidf = open(tfidf_vector_file_path, "w")
-        for component_id in vectors_dict[gesture_id].keys():
-            f_tf.write("Component ID: " + str(component_id) + "->\n")
-            f_tfidf.write("Component ID: " + str(component_id) + "->\n")
-            for sensor_id in vectors_dict[gesture_id][component_id].keys():
-                f_tf.write("\tSensor ID: " + str(sensor_id) + "->\n")
-                f_tf.write("\t\t" + str(vectors_dict[gesture_id][component_id][sensor_id][0]) + "\n")
-                f_tfidf.write("\tSensor ID: " + str(sensor_id) + "->\n")
-                f_tfidf.write("\t\t" + str(vectors_dict[gesture_id][component_id][sensor_id][1]) + "\n")
+        f_tf.write(str(vectors_dict[gesture_id][0]) + "\n")
+        f_tfidf.write(str(vectors_dict[gesture_id][1]) + "\n")
         f_tf.close()
         f_tfidf.close()
 
