@@ -1,4 +1,6 @@
 data/*.wrd
 data/*_vectors_*.txt
+data/.DS_Store
 intermediate/*
 venv/
+__pycache__
