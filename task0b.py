@@ -30,7 +30,7 @@ def generate_word_position_dictionary(list_of_all_words):
     word_position_dictionary = {}
     k=0
     for word in list_of_all_words:
-        word_position_dictionary[word] = k
+        word_position_dictionary[str(word)] = k
         k += 1
     return word_position_dictionary
 
@@ -57,7 +57,7 @@ def generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary):
         word = (component_id, sensor_id, value)
         if gesture_id not in tf_vector_dictionary:
             tf_vector_dictionary[gesture_id] = [0] * len(word_position_dictionary.keys())
-        tf_vector_dictionary[gesture_id][word_position_dictionary[word]] += 1
+        tf_vector_dictionary[gesture_id][word_position_dictionary[str(word)]] += 1
 
     for gesture_id in tf_vector_dictionary.keys():
         tf_vector = tf_vector_dictionary[gesture_id]
@@ -86,7 +86,7 @@ def generate_idf_vector(word_vector_dict, word_position_dictionary):
         set_of_gestures.add(gesture_id)
     
     for word, gestures_in_which_word_occurs in word_document_occurrence_dictionary.items():
-        idf_vector[word_position_dictionary[word]] = math.log(len(set_of_gestures)/len(gestures_in_which_word_occurs))
+        idf_vector[word_position_dictionary[str(word)]] = math.log(len(set_of_gestures)/len(gestures_in_which_word_occurs))
     
     idf_vector = tuple(idf_vector)
     return idf_vector
@@ -126,6 +126,10 @@ def serialize_vectors_dictionary(vectors_dictionary):
     with open("intermediate/vectors_dictionary.json", "w") as write_file:
         json.dump(vectors_dictionary, write_file)
 
+def serialize_word_position_dictionary(word_position_dictionary):
+    with open("intermediate/word_position_dictionary.json", "w") as write_file:
+        json.dump(word_position_dictionary, write_file)
+
 def generate_vectors():
     print("Deserializing objects from previous tasks...")
     # file_name = "intermediate/word_avg_dict.json"
@@ -151,6 +155,7 @@ def generate_vectors():
 
     print("Serializing objects needed for future tasks...")
     serialize_vectors_dictionary(vectors_dictionary)
+    serialize_word_position_dictionary(word_position_dictionary)
 
     print("Task-2 complete!")
 
