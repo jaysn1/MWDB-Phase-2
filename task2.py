@@ -27,10 +27,10 @@ def main():
     user_option = int(input(" #1: dot product\n #2:PCA \n #3: SVD \n \
 #4:NMF \n #5:LDA \n #6: edit distance \n #7: DTW distance \nEnter method to use to find similarity: "))
     if user_option == 1:
-        vector = vectors[gesture_id][vector_model]
+        vector = vectors[gesture_id][vector_model-1]
         similarity = {}
         for gesture in vectors:
-            similarity[gesture] = dot_product_similarity(vector,vectors[gesture][vector_model])
+            similarity[gesture] = dot_product_similarity(vector,vectors[gesture][vector_model-1])
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
 
