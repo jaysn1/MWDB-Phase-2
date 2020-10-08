@@ -10,7 +10,6 @@
 
 # Results are presented in the form of hgesture, scorei pairs sorted in non-increasing order of similarity scores.
 from dot_product_similarity import dot_product_similarity
-from read_vectors import read_vectors
 import json
 
 def main():
