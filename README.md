@@ -22,6 +22,7 @@
 > source venv/bin/activate
 > python task0a.py
 > python task0b.py
+> python task2.py
 ```
 
 All serialized objects will be generated in the intermediate folder
