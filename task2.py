@@ -11,6 +11,8 @@
 # Results are presented in the form of hgesture, scorei pairs sorted in non-increasing order of similarity scores.
 from similarity_calculators.dot_product_similarity import dot_product_similarity
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
+from similarity_calculators.dtw_similarity import dynamic_time_warping
+from read_word_average_dict import read_word_average_dict
 import json
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
@@ -34,6 +36,8 @@ def main():
     k = 10
     vectors_dir="intermediate/vectors_dictionary.json"
     word_vector="intermediate/word_vector_dict.json"
+    parameters_path="intermediate/data_parameters.json"
+    word_average_dict_dir="intermediate/word_avg_dict.json"
     
     with open(vectors_dir) as f:
         vectors = json.load(f)
@@ -66,10 +70,9 @@ def main():
             similarity[gesture] = dot_product_similarity(vector,vectors[gesture][vector_model-1])
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
-    
+
     elif user_option == 6:
         # Initialize default config
-        parameters_path="intermediate/data_parameters.json"
         with open(parameters_path) as f:
                 parameters = json.load(f)
         s = parameters['shift_length']
@@ -109,5 +112,23 @@ def main():
         # Sort the similarities to give the top 10 similar gestures.
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
+
+    elif user_option == 7:
+        word_average_dict = read_word_average_dict(word_average_dict_dir)
+        assert gesture_id in word_average_dict
+        similarity = {}
+        for gesture in word_average_dict:
+            similarity[gesture] = 0
+            for components_id in word_average_dict[gesture_id]:
+                for sensor_id in word_average_dict[gesture_id][components_id]:
+                    similarity[gesture] += dynamic_time_warping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id])
+            if similarity[gesture]==0:
+                similarity[gesture] = float("inf")
+            else:
+                similarity[gesture] = (similarity[gesture])**-1
+                
+        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+        print(top_k_similar)
+
 
 main()
