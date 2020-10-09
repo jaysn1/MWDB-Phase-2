@@ -69,9 +69,10 @@ def main():
     
     elif user_option == 6:
         # Initialize default config
-        w = 3
-        r = 6
-        s = 2
+        parameters_path="intermediate/data_parameters.json"
+        with open(parameters_path) as f:
+                parameters = json.load(f)
+        s = parameters['shift_length']
         components = ['X', 'Y', 'Z', 'W']
         sensors = 20
         
