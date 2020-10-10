@@ -163,5 +163,5 @@ def main():
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
         print("DDTW: ", top_k_similar)
 
-
+ 
 main()
