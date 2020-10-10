@@ -26,7 +26,7 @@ def distance(element1, element2):
     return abs(element1 - element2)**2
 
 
-def multi_dimension_dynamic_time_warping(gesture1, gesture2):
+def multi_dimension_dynamic_time_warping(gesture1, gesture2, avg_dict):
     """
     # Generalizing DTW to the multi-dimensional case requires an adaptive approach: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5668684/
     # Multi-Dimensional Dynamic Time Warping for GestureRecognition: https://www.researchgate.net/publication/228740947_Multi-dimensional_dynamic_time_warping_for_gesture_recognition
@@ -35,10 +35,13 @@ def multi_dimension_dynamic_time_warping(gesture1, gesture2):
     assert sorted(gesture1.keys())==sorted(gesture2.keys())
 
     Q, C = [], []
+    weight1, weight2 = [], []
     for component_id in gesture1:
         for sensor_id in gesture1[component_id]:
             Q.append(gesture1[component_id][sensor_id])
             C.append(gesture2[component_id][sensor_id])
+            weight1.append(avg_dict[0][component_id][sensor_id][0])
+            weight2.append(avg_dict[1][component_id][sensor_id][0])
     M = len(Q)
     assert len(Q)==len(C)
     m, n = len(Q[0]), len(C[0])
@@ -47,7 +50,7 @@ def multi_dimension_dynamic_time_warping(gesture1, gesture2):
     
     for i in range(1, m+1):
         for j in range(1, n+1):
-            cost = sum([distance(Q[_][i-1], C[_][j-1]) for _ in range(M)])
+            cost = sum([distance(Q[_][i-1], C[_][j-1])*abs(weight1[_] - weight2[_]) for _ in range(M)])
 
             DTW[i][j] = cost + min(DTW[i-1][j],
                                DTW[i][j-1],

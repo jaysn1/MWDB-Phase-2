@@ -13,6 +13,7 @@ from similarity_calculators.dot_product_similarity import dot_product_similarity
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
 from similarity_calculators.dtw_similarity import dynamic_time_warping, multi_dimension_dynamic_time_warping, derivative_dynamic_time_wraping
 from read_word_average_dict import read_word_average_dict
+from read_sensor_average_std_dict import read_sensor_average_std_dict
 import json
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
@@ -116,6 +117,7 @@ def main():
 
     elif user_option == 7:
         word_average_dict = read_word_average_dict(word_average_dict_dir)
+        sensor_avg_std_dict = read_sensor_average_std_dict(sensor_average_std_dict_dir)
 
         assert gesture_id in word_average_dict
         similarity = {}
@@ -123,7 +125,8 @@ def main():
             similarity[gesture] = 0
             for components_id in word_average_dict[gesture_id]:
                 for sensor_id in word_average_dict[gesture_id][components_id]:
-                    similarity[gesture] += dynamic_time_warping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id])
+                    weight = abs(sensor_avg_std_dict[gesture][components_id][sensor_id][0] - sensor_avg_std_dict[gesture_id][components_id][sensor_id][0])
+                    similarity[gesture] += dynamic_time_warping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id], weight)
             if similarity[gesture]==0:
                 similarity[gesture] = float("inf")
             else:
@@ -134,7 +137,8 @@ def main():
         
         similarity = {}
         for gesture in word_average_dict:    
-            similarity[gesture] = multi_dimension_dynamic_time_warping(word_average_dict[gesture_id],word_average_dict[gesture])
+            weights = (sensor_avg_std_dict[gesture_id], sensor_avg_std_dict[gesture])
+            similarity[gesture] = multi_dimension_dynamic_time_warping(word_average_dict[gesture_id],word_average_dict[gesture], weights)
             
             if similarity[gesture]==0:
                 similarity[gesture] = float("inf")
@@ -149,7 +153,8 @@ def main():
             similarity[gesture] = 0
             for components_id in word_average_dict[gesture_id]:
                 for sensor_id in word_average_dict[gesture_id][components_id]:
-                    similarity[gesture] += derivative_dynamic_time_wraping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id])
+                    weight = abs(sensor_avg_std_dict[gesture][components_id][sensor_id][0] - sensor_avg_std_dict[gesture_id][components_id][sensor_id][0])
+                    similarity[gesture] += derivative_dynamic_time_wraping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id], weight)
             if similarity[gesture]==0:
                 similarity[gesture] = float("inf")
             else:
