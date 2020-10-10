@@ -1,29 +1,44 @@
-from sklearn.decomposition import LatentDirichletAllocation as LDA
-from sklearn.decomposition import PCA
-from sklearn.decomposition import TruncatedSVD as SVD
+from sklearn.decomposition import NMF, PCA, TruncatedSVD as SVD, LatentDirichletAllocation as LDA
 from pandas import DataFrame
 from functools import wraps
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+import json
+
+vectors_dict = {}
 
 
-def pca(model):
-    print("pca")
+def deserialize_vectors_dict(file_name):
+    global vectors_dict
+    with open(file_name, "r") as read_file:
+        vectors_dict = json.load(read_file)
 
 
-def svd(model):
-    print("svd")
+def pca(table, k):
+    matrix = PCA(n_components=k)
+    out = matrix.fit_transform(table)
+    return out, matrix.components_
 
 
-def nmf(model):
-    print("nmf")
+def svd(table, k):
+    matrix = SVD(n_components=k)
+    out = matrix.fit_transform(table)
+    return out, matrix.components_
 
 
-def lda(model):
-    print("lda")
+def nmf(table, k):
+    matrix = NMF(n_components=k)
+    out = matrix.fit_transform(table)
+    return out, matrix.components_
 
 
-def select_method(model):
+def lda(table, k):
+    matrix = LDA(n_components=k)
+    out = matrix.fit_transform(table)
+    return out, matrix.components_
+
+
+def select_method(table):
     print("Select method:")
     print("1. PCA")
     print("2. SVD")
@@ -32,14 +47,15 @@ def select_method(model):
     try:
         option = input("Enter option: ")
         method = int(option)
+        k = int(input("Enter k: "))
         if method == 1:
-            pca(model)
+            return pca(table, k)
         elif method == 2:
-            svd(model)
+            return svd(table, k)
         elif method == 3:
-            nmf(model)
+            return nmf(table, k)
         elif method == 4:
-            lda(model)
+            return lda(table, k)
         else:
             exit(400)
     except ValueError:
@@ -47,14 +63,23 @@ def select_method(model):
 
 
 def main():
+    global vectors_dict
+    gesture_files = input("Enter desired gesture files, separated by comma (ex.: 1,2,3,...,60 etc.):\n")
+    gesture_files = gesture_files.split(',')
     print("Select a vector model:")
     print("1. TF")
     print("2. TF-IDF")
     try:
         option = input("Enter option: ")
         model = int(option)
+        vector_file_name = "intermediate/vectors_dictionary.json"
+        deserialize_vectors_dict(vector_file_name)
         if model == 1 or model == 2:
-            select_method(model)
+            table = []
+            print(gesture_files)
+            for gesture_number in gesture_files:
+                table.append(vectors_dict[gesture_number][model - 1])
+            return select_method(table)
         else:
             exit(400)
     except ValueError:
