@@ -34,7 +34,7 @@ def deserialize_vectors_dict(file_name):
 
 def pca(table, k):
     matrix = PCA(n_components=k)
-    out = matrix.fit(table)
+    out = matrix.fit_transform(table)
     return out, matrix.components_
 
 
