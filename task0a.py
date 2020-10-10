@@ -15,7 +15,7 @@ def load_params():
     # data['window_length'] = int(input("Enter window length: "))
     # data['shift_length'] = int(input("Enter shift length: "))
     # data['resolution'] = int(input("Enter resolution: "))
-    data['directory'] = 'data'
+    data['directory'] = 'C:/Users/monil/Desktop/CSE 515 - MWDB/Project/Phase2/data/3_class_gesture_data'
     data['window_length'] = 3
     data['shift_length'] = 2
     data['resolution'] = 3
