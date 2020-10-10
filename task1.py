@@ -4,6 +4,7 @@ from functools import wraps
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import json
+import sys
 
 vectors_dict = {}
 k = 0
@@ -33,27 +34,27 @@ def deserialize_vectors_dict(file_name):
 
 
 def pca(table, k):
-    matrix = PCA(n_components=k)
-    out = matrix.fit_transform(table)
-    return out, matrix.components_
+    model = PCA(n_components=k)
+    out = model.fit_transform(table)
+    return out, model.explained_variance_ratio_
 
 
 def svd(table, k):
-    matrix = SVD(n_components=k)
-    out = matrix.fit_transform(table)
-    return out, matrix.components_
+    model = SVD(n_components=k)
+    out = model.fit_transform(table)
+    return out, model.components_
 
 
 def nmf(table, k):
-    matrix = NMF(n_components=k)
-    out = matrix.fit_transform(table)
-    return out, matrix.components_
+    model = NMF(n_components=k)
+    out = model.fit_transform(table)
+    return out, model.components_
 
 
 def lda(table, k):
-    matrix = LDA(n_components=k)
-    out = matrix.fit_transform(table)
-    return out, matrix.components_
+    model = LDA(n_components=k)
+    out = model.fit_transform(table)
+    return out, model.components_
 
 
 def select_method(table):
@@ -82,13 +83,11 @@ def select_method(table):
         else:
             exit(400)
     except ValueError:
-        exit(500)
+        sys.exit(500)
 
 
 def main():
     global vectors_dict, method_name, k
-    gesture_files = input("Enter desired gesture files, separated by comma (ex.: 1,2,3,...,60 etc.):\n")
-    gesture_files = gesture_files.split(',')
     print("Select a vector model:")
     print("1. TF")
     print("2. TF-IDF")
@@ -99,15 +98,20 @@ def main():
         deserialize_vectors_dict(vector_file_name)
         if model == 1 or model == 2:
             table = []
-            print(gesture_files)
-            for gesture_number in gesture_files:
-                table.append(vectors_dict[gesture_number][model - 1])
-            _, latent_semantics = select_method(table)
-            lsm = latent_semantic_to_string(latent_semantics)
-            string = f"{gesture_files}_{method_name}_{k}"
-            task1_file_name = "intermediate/" + f"task1_{string}.txt"
-            with open(task1_file_name, 'w+') as f:
-                f.write(lsm)
+            for key in sorted(vectors_dict.keys()):
+                table.append(vectors_dict[key][model - 1])
+                
+            table = np.array(table)
+            
+            transformed_gestures, latent_semantics = select_method(table)
+            transformed_gestures = DataFrame(transformed_gestures)
+            transformed_gestures.to_csv('intermediate/transformed_gestures.csv', index=False, header=False)
+            
+            # lsm = latent_semantic_to_string(latent_semantics)
+            # string = f"{gesture_files}_{method_name}_{k}"
+            # task1_file_name = "intermediate/" + f"task1_{string}.txt"
+            # with open(task1_file_name, 'w+') as f:
+                # f.write(lsm)
         else:
             exit(400)
     except ValueError:
