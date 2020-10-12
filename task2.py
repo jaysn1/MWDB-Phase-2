@@ -34,7 +34,7 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
     return query
 
 def main():
-    k = 20
+    k = 10
     vectors_dir="intermediate/vectors_dictionary.json"
     word_vector="intermediate/word_vector_dict.json"
     parameters_path="intermediate/data_parameters.json"

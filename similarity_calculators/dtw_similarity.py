@@ -43,7 +43,6 @@ def multi_dimension_dynamic_time_warping(gesture1, gesture2, avg_dict):
             weight1.append(avg_dict[0][component_id][sensor_id][0])
             weight2.append(avg_dict[1][component_id][sensor_id][0])
     M = len(Q)
-    assert len(Q)==len(C)
     m, n = len(Q[0]), len(C[0])
     DTW = [[float("inf") for _ in  range(n+1)] for _ in  range(m+1)]
     DTW[0][0] = 0
@@ -55,7 +54,8 @@ def multi_dimension_dynamic_time_warping(gesture1, gesture2, avg_dict):
             DTW[i][j] = cost + min(DTW[i-1][j],
                                DTW[i][j-1],
                                DTW[i-1][j-1])
-    return DTW[m][n]/(m*n)
+    return DTW[m][n]/(m+n)
+
 
 def derivative_dynamic_time_wraping(vector1, vector2, weight=1):
     """
@@ -70,7 +70,6 @@ def derivative_dynamic_time_wraping(vector1, vector2, weight=1):
     else:
         derivateve_vector2 = vector2
     return dynamic_time_warping(derivateve_vector1, derivateve_vector2, weight)
-
 
 
 def dynamic_time_warping(vector1, vector2, weight=1):
@@ -88,7 +87,7 @@ def dynamic_time_warping(vector1, vector2, weight=1):
             DTW[i][j] = cost + min(DTW[i-1][j],
                                DTW[i][j-1],
                                DTW[i-1][j-1])
-    return DTW[m][n]*weight/(m*n)
+    return DTW[m][n]*weight/(m+n)
 
 if __name__=="__main__":
     # v1 = [ord(_)-97 for _ in "kitten"]
