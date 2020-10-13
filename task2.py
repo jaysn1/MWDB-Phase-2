@@ -10,6 +10,7 @@
 
 # Results are presented in the form of hgesture, scorei pairs sorted in non-increasing order of similarity scores.
 from similarity_calculators.dot_product_similarity import dot_product_similarity
+from similarity_calculators.distance_for_PCA_SVD_NMF_LDA import calculate_similarity
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
 import json
 
@@ -67,6 +68,16 @@ def main():
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
     
+    elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
+        with open("intermediate/transformed_data.json", "r") as f:
+            transformed_data = json.load(f)
+        query = transformed_data[gesture_id]
+        similarity = {}
+        for gesture_id, gesture_data in transformed_data.items():
+            similarity[gesture_id] = calculate_similarity(query, gesture_data)
+        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+        print(top_k_similar)
+
     elif user_option == 6:
         # Initialize default config
         parameters_path="intermediate/data_parameters.json"
