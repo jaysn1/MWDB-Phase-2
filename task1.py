@@ -98,15 +98,22 @@ def main():
         deserialize_vectors_dict(vector_file_name)
         if model == 1 or model == 2:
             table = []
+            gesture_ids = []
             for key in sorted(vectors_dict.keys()):
                 table.append(vectors_dict[key][model - 1])
+                gesture_ids.append(key)
                 
             table = np.array(table)
             
             transformed_gestures, latent_semantics = select_method(table)
             transformed_gestures = DataFrame(transformed_gestures)
-            transformed_gestures.to_csv('intermediate/transformed_gestures.csv', index=False, header=False)
-            
+            return transformed_gestures
+            transformed_gestures_dict = {}
+            for i in range(len(gesture_ids)):
+                transformed_gestures_dict[gesture_ids[i]] = list(transformed_gestures.iloc[i])
+            with open("intermediate/transformed_data.json", "w") as write_file:
+                json.dump(transformed_gestures_dict, write_file)
+                
             # lsm = latent_semantic_to_string(latent_semantics)
             # string = f"{gesture_files}_{method_name}_{k}"
             # task1_file_name = "intermediate/" + f"task1_{string}.txt"
