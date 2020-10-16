@@ -6,6 +6,7 @@ Created on Thu Oct 15 12:56:53 2020
 """
 import json
 from similarity_calculators.dot_product_similarity import dot_product_similarity
+from similarity_calculators.distance_for_PCA_SVD_NMF_LDA import calculate_similarity
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
 from similarity_calculators.dtw_similarity import dynamic_time_warping
 
@@ -111,6 +112,19 @@ def main():
         with open(gesture_gesture_similarity_dir, "w") as write_file:
             json.dump(gesture_gesture_similarity, write_file)
     
+    elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
+        with open("intermediate/transformed_data.json", "r") as f:
+            transformed_data = json.load(f)
+        gesture_gesture_similarity = {}
+        for gesture_id in tqdm(transformed_data):
+            query = transformed_data[gesture_id]
+            gesture_similarity = {}
+            for gesture, gesture_data in transformed_data.items():
+                gesture_similarity[gesture] = calculate_similarity(query, gesture_data)
+            gesture_gesture_similarity[gesture_id] = gesture_similarity
+        with open(gesture_gesture_similarity_dir, "w") as write_file:
+            json.dump(gesture_gesture_similarity, write_file)
+        
     elif user_option == 6:
         threads = 10
         # Initialize default config
