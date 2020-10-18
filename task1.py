@@ -51,10 +51,9 @@ def store_word_score_dict(word_score_matrix, word_score_dir = "intermediate/word
     with open(word_score_dir, "w") as f:
         for row in range(len(word_score_matrix)):
             for col in range(len(word_score_matrix[row])):
-                word, score = word_score_matrix[row][col]
-                f.write("{} : {} \t".format(word.replace("'", ""), score))
+                score, word = word_score_matrix[row][col]
+                f.write("{} : {} \t".format(word, score))
             f.write("\n")
-
 
 def read_vectors(vector_model, vectors_dir = "intermediate/vectors_dictionary.json"):
     with open(vectors_dir) as f:
