@@ -108,6 +108,8 @@ def calculate_svd(vector_model, k):
     params: vector_model: 1,2 suggesting TF, TF-IDF respectively
             k: tol-k latent semantics
     return: dictionary with key as gesture ID and transformed vector as value
+    
+    # http://infolab.stanford.edu/~ullman/mmds/ch11.pdf
     """
     gestures, gesture_ids = read_vectors(vector_model)
 
