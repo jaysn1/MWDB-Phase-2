@@ -131,7 +131,7 @@ def calculate_lda(vector_model, k):
 
     params: vector_model: 1,2 suggesting TF, TF-IDF respectively
             k: tol-k latent semantics
-    return: dictionary with key as gesture ID and transformed vector as value
+    return(2): dictionary with key as gesture ID AND transformed vector as value
     """
     gestures, gesture_ids = read_vectors(vector_model)
 
@@ -159,7 +159,6 @@ def main():
     vectors_dir = "intermediate/vectors_dictionary.json"
     transformed_data_dir = "intermediate/transformed_data.json"
     word_score_dir = "intermediate/word_score.txt"
-    vectors_dir = "intermediate/vectors_dictionary.json"
 
 
     print("""
