@@ -10,11 +10,11 @@ from similarity_calculators.distance_for_PCA_SVD_NMF_LDA import calculate_simila
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
 from similarity_calculators.dtw_similarity import dynamic_time_warping
 
-from tqdm import tqdm
+
 import concurrent.futures
 from read_word_average_dict import read_word_average_dict
 from read_sensor_average_std_dict import read_sensor_average_std_dict
-
+from task3_util import SVD_gesture_gesture, NMF_gesture_gesture, store_gesture_gesture_score_dict
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
     query = {}
@@ -35,7 +35,7 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
 
 def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_store, s):
     thread_gestures = {}
-    for gesture_id in tqdm(p_vectors):
+    for gesture_id in p_vectors:
         gesture_similarity = {}
         # Get the query gesture words for each component
         query = mega_data_store[gesture_id]
@@ -57,7 +57,7 @@ def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_stor
 
 def DTW_thread(p_words, word_average_dict, sensor_avg_std_dict):
     thread_gestures = {}
-    for gesture_id in tqdm(p_words):
+    for gesture_id in p_words:
         gesture_similarity = {}
         for gesture in word_average_dict:
             gesture_similarity[gesture] = 0
@@ -89,7 +89,19 @@ def main():
   │                                                                         │
   └─────────────────────────────────────────────────────────────────────────┘""")
     user_option = int(input("\nEnter method to use to find similarity: "))
-    
+    p = int(input("\nEnter the desired p-value: "))
+    print("""
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                                                                         │
+    │  Phase 2 -Task 2                                                        │
+    │                                                                         │
+    │                                                                         │
+    │    1 - SVD                                                              │
+    │    2 - NMF                                                              │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘""")
+    latent_semantics_option = int(input("\nEnter method to find top-p latent semantics: "))
+
     vectors_dir="intermediate/vectors_dictionary.json"
     gesture_gesture_similarity_dir="intermediate/gesture_gesture_similarity_dictionary.json"
     parameters_path="intermediate/data_parameters.json"
@@ -116,7 +128,7 @@ def main():
         with open("intermediate/transformed_data.json", "r") as f:
             transformed_data = json.load(f)
         gesture_gesture_similarity = {}
-        for gesture_id in tqdm(transformed_data):
+        for gesture_id in transformed_data:
             query = transformed_data[gesture_id]
             gesture_similarity = {}
             for gesture, gesture_data in transformed_data.items():
@@ -139,7 +151,7 @@ def main():
             word_store = json.load(f)
         
         mega_data_store = {}
-        for gesture_id in tqdm(vectors):
+        for gesture_id in vectors:
             mega_data_store[gesture_id] = get_query_for_edit_distance(components, sensors, gesture_id, word_store, s)
     
         partitioned_vectors = []
@@ -150,7 +162,7 @@ def main():
 
         gesture_gesture_similarity = {}
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            future = [executor.submit(edit_distance_thread, p_vector, vectors.keys(), components, sensors, mega_data_store, s) for p_vector in tqdm(partitioned_vectors)]
+            future = [executor.submit(edit_distance_thread, p_vector, vectors.keys(), components, sensors, mega_data_store, s) for p_vector in partitioned_vectors]
         
         for f in future:
             gesture_gesture_similarity.update(f.result())
@@ -164,7 +176,7 @@ def main():
         
         gesture_gesture_similarity = {}
         
-        for gesture_id in tqdm(word_average_dict):
+        for gesture_id in word_average_dict:
             gesture_similarity = {}
             for gesture in word_average_dict:
                 gesture_similarity[gesture] = 0
@@ -193,7 +205,26 @@ def main():
         
         with open(gesture_gesture_similarity_dir, "w") as write_file:
             json.dump(gesture_gesture_similarity, write_file)
+
+        gesture_gesture_score_dir = "intermediate/gesture_gesture_score.txt"
+        transformed_gestures_gestures_dir = "intermediate/transformed_gesture_gesture_data.json"
+        gesture_scores = []
+        if latent_semantics_option == 1:
+            transformed_gestures_gestures_dict, gesture_scores = SVD_gesture_gesture(p)
+        elif latent_semantics_option == 2:
+            transformed_gestures_gestures_dict, gesture_scores = NMF_gesture_gesture(p)
+        else:
+            print("Error latent semantics method not chosen or incorrect, please try again")
+            exit(404)
+        store_gesture_gesture_score_dict(gesture_scores, gesture_gesture_score_dir)
+
+        with open(transformed_gestures_gestures_dir, "w") as f:
+            json.dump(transformed_gestures_gestures_dict, f)
+
+        print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
+
         return gesture_gesture_similarity
+
 c = main()
             
             
