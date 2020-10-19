@@ -1,123 +1,205 @@
 from sklearn.decomposition import NMF, PCA, TruncatedSVD as SVD, LatentDirichletAllocation as LDA
 from pandas import DataFrame
-from functools import wraps
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import json
 import sys
 
-vectors_dict = {}
-k = 0
-method_name = "NaN"
+def store_word_score_dict(word_score_matrix, word_score_dir = "intermediate/word_score.txt"):
+    with open(word_score_dir, "w") as f:
+        for row in range(len(word_score_matrix)):
+            for col in range(len(word_score_matrix[row])):
+                score, word = word_score_matrix[row][col]
+                f.write("{} : {} \t".format(word, score))
+            f.write("\n")
 
-# copied change this
-def latent_semantic_to_string(table, save=True):
-    table = table.T
-    to_return = ""
+def read_vectors(vector_model, vectors_dir = "intermediate/vectors_dictionary.json"):
+    with open(vectors_dir) as f:
+        vectors = json.load(f)
+    gestures = []
+    gesture_ids = []
+    for key in vectors.keys():
+        gestures.append(vectors[key][vector_model-1])
+        gesture_ids.append(key)
+    gestures = np.array(gestures)    
+    return gestures, gesture_ids
 
-    if save:
-        table.to_csv('latent_semantics.csv')
-    for i, col_id in enumerate(table):
-        column = table[col_id]
-        column = column.sort_values(ascending=False)
-        to_return += '-' * 50
-        to_return += "\nLATENT SEMANTIC " + str(i)
-        to_return += '-' * 50
-        to_return += column.__repr__()
-    return to_return
+def read_words(word_dir = "intermediate/word_position_dictionary.json"):
+    with open(word_dir) as f:
+        words_position_dictionary = json.load(f)
+    return words_position_dictionary
 
+def calculate_pca(vector_model, k):
+    """
+    This function returns a dictionary of top K components from all gestures.
 
-def deserialize_vectors_dict(file_name):
-    global vectors_dict
-    with open(file_name, "r") as read_file:
-        vectors_dict = json.load(read_file)
+    params: vector_model: 1,2 suggesting TF, TF-IDF respectively
+            k: tol-k latent semantics
+    return: dictionary with key as gesture ID and transformed vector as value
+    """
+    gestures, gesture_ids = read_vectors(vector_model)
 
+    gestures = np.array(gestures)
+    pca = PCA(k)
+    pca.fit(gestures)
+    eigen_vectors = pca.components_
+    transformed_data = pca.transform(gestures) 
 
-def pca(table, k):
-    model = PCA(n_components=k)
-    out = model.fit_transform(table)
-    return out, model.explained_variance_ratio_
+    word_scores = []
+    word_position_dictionary = read_words()
+    words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
+    for eigen_vector in eigen_vectors:
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_scores.append(word_score)
 
+    transformed_gestures_dict = {}
+    for i in range(len(gesture_ids)):
+        transformed_gestures_dict[gesture_ids[i]] = list(transformed_data[i])
 
-def svd(table, k):
-    model = SVD(n_components=k)
-    out = model.fit_transform(table)
-    return out, model.components_
+    return transformed_gestures_dict, word_scores
 
+def calculate_svd(vector_model, k):
+    """
+    This function returns a dictionary of top K components from all gestures.
 
-def nmf(table, k):
-    model = NMF(n_components=k)
-    out = model.fit_transform(table)
-    return out, model.components_
+    params: vector_model: 1,2 suggesting TF, TF-IDF respectively
+            k: tol-k latent semantics
+    return: dictionary with key as gesture ID and transformed vector as value
+    
+    # http://infolab.stanford.edu/~ullman/mmds/ch11.pdf
+    """
+    gestures, gesture_ids = read_vectors(vector_model)
 
-
-def lda(table, k):
-    model = LDA(n_components=k)
-    out = model.fit_transform(table)
-    return out, model.components_
-
-
-def select_method(table):
-    global method_name, k
-    print("Select method:")
-    print("1. PCA")
-    print("2. SVD")
-    print("3. NMF")
-    print("4. LDA")
+    gestures = np.array(gestures)
+    svd = SVD(n_components=k, algorithm = "randomized", n_iter=7, random_state=42)
+    # algorithm: To computes a truncated randomized SVD
+    # n_iter: Number of iterations for randomized SVD solver
+    # random_states: Used during randomized svd. To produce reproducible results
     try:
-        option = input("Enter option: ")
-        method = int(option)
-        k = int(input("Enter k: "))
-        if method == 1:
-            method_name = "PCA"
-            return pca(table, k)
-        elif method == 2:
-            method_name = "SVD"
-            return svd(table, k)
-        elif method == 3:
-            method_name = "NMF"
-            return nmf(table, k)
-        elif method == 4:
-            method_name = "LDA"
-            return lda(table, k)
-        else:
-            exit(400)
-    except ValueError:
-        sys.exit(500)
+        svd.fit(gestures)
+    except ValueError as e:
+        raise ValueError(e)
+    eigen_vectors = svd.components_
+    transformed_data = svd.transform(gestures)
+    
+    word_scores = []
+    word_position_dictionary = read_words()
+    words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
+    for eigen_vector in eigen_vectors:
+        word_score = sorted(zip(words, eigen_vector), key=lambda x: x[1])
+        word_scores.append(word_score)
+
+    transformed_gestures_dict = {}
+    for i in range(len(gesture_ids)):
+        transformed_gestures_dict[gesture_ids[i]] = list(transformed_data[i])
+
+    return transformed_gestures_dict, word_scores
+
+def calculate_nmf(vector_model, k):
+    """
+    This function returns a dictionary of top K components from all gestures.
+
+    params: vector_model: 1,2 suggesting TF, TF-IDF respectively
+            k: tol-k latent semantics
+    return: dictionary with key as gesture ID and transformed vector as value
+    """
+    gestures, gesture_ids = read_vectors(vector_model)
+
+    gestures = np.array(gestures)
+    nmf = NMF(n_components=k, init='random', random_state=0)
+    # init: non-negative random matrices initialization
+    # random_state=0 : for reproducible results
+    nmf.fit(gestures)
+    eigen_vectors = nmf.components_
+    transformed_data = nmf.transform(gestures) 
+
+    word_scores = []
+    word_position_dictionary = read_words()
+    words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
+    for eigen_vector in eigen_vectors:
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_scores.append(word_score)
+
+    transformed_gestures_dict = {}
+    for i in range(len(gesture_ids)):
+        transformed_gestures_dict[gesture_ids[i]] = list(transformed_data[i])
+
+    return transformed_gestures_dict, word_scores
+
+def calculate_lda(vector_model, k):
+    """
+    This function returns a dictionary of top K components from all gestures.
+
+    params: vector_model: 1,2 suggesting TF, TF-IDF respectively
+            k: tol-k latent semantics
+    return(2): dictionary with key as gesture ID AND transformed vector as value
+    """
+    gestures, gesture_ids = read_vectors(vector_model)
+
+    gestures = np.array(gestures)
+    lda = LDA(n_components = k)
+    lda.fit(gestures)
+    eigen_vectors = lda.components_
+    transformed_data = lda.transform(gestures) 
+
+    word_scores = []
+    word_position_dictionary = read_words()
+    words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
+    for eigen_vector in eigen_vectors:
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_scores.append(word_score)
+
+    transformed_gestures_dict = {}
+    for i in range(len(gesture_ids)):
+        transformed_gestures_dict[gesture_ids[i]] = list(transformed_data[i])
+
+    return transformed_gestures_dict, word_scores
 
 
 def main():
-    global vectors_dict, method_name, k
-    print("Select a vector model:")
-    print("1. TF")
+    vectors_dir = "intermediate/vectors_dictionary.json"
+    transformed_data_dir = "intermediate/transformed_data.json"
+    word_score_dir = "intermediate/word_score.txt"
+
+
+    print("""
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │                                                                         │
+    │  Phase 2 -Task 1                                                        │
+    │                                                                         │
+    │    1 - PCA                                                              │
+    │    2 - SVD                                                              │
+    │    3 - NMF                                                              │
+    │    4 - LDA                                                              │
+    │                                                                         │
+    └─────────────────────────────────────────────────────────────────────────┘""")
+    user_option = int(input("\nEnter method to use to find latent latent semantics: "))
+    print("\n1. TF")
     print("2. TF-IDF")
+    vector_model = int(input("Enter a vector model: "))
+
+    k = int(input("Enter k for top-k latent features: "))
+    
     try:
-        option = input("Enter option: ")
-        model = int(option)
-        vector_file_name = "intermediate/vectors_dictionary.json"
-        deserialize_vectors_dict(vector_file_name)
-        if model == 1 or model == 2:
-            table = []
-            gesture_ids = []
-            for key in sorted(vectors_dict.keys()):
-                table.append(vectors_dict[key][model - 1])
-                gesture_ids.append(key)
-                
-            table = np.array(table)
-            
-            transformed_gestures, latent_semantics = select_method(table)
-            transformed_gestures = DataFrame(transformed_gestures)
-            transformed_gestures_dict = {}
-            
-            for i in range(len(gesture_ids)):
-                transformed_gestures_dict[gesture_ids[i]] = list(transformed_gestures.iloc[i])
-            with open("intermediate/transformed_data.json", "w") as write_file:
-                json.dump(transformed_gestures_dict, write_file)
-                
+        if user_option == 1:
+            transformed_gestures_dict, word_score_matrix = calculate_pca(vector_model, k)
+        elif user_option == 2:
+            transformed_gestures_dict, word_score_matrix = calculate_svd(vector_model, k)
+        elif user_option == 3:
+            transformed_gestures_dict, word_score_matrix = calculate_nmf(vector_model, k)
+        elif user_option == 4:
+            transformed_gestures_dict, word_score_matrix = calculate_lda(vector_model, k)
         else:
-            exit(400)
-    except ValueError:
-        exit(500)
+            print("Incorrect value!")
+            sys.exit(0)            
+    except ValueError as e:
+        print(e)
+        sys.exit()
+
+    store_word_score_dict(word_score_matrix, word_score_dir)
+    with open(transformed_data_dir, "w") as f:
+        json.dump(transformed_gestures_dict, f)
+    
+    print("\nResults for this task are sotred in: ", word_score_dir)
 
 
 if __name__ == '__main__':
