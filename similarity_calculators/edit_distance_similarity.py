@@ -49,7 +49,7 @@ sensor_cost = {
     20:3,
 }
 
-def edit_distance_similarity(query_words, sensor_words, sensor_id):
+def edit_distance_similarity(query_words, sensor_words):
     distance = 0
     row = len(sensor_words) + 1
     col = len(query_words) + 1
@@ -72,4 +72,8 @@ def edit_distance_similarity(query_words, sensor_words, sensor_id):
                                 ED_matrix[i-1][j-1] + cost)
     
     distance = ED_matrix[row-1][col-1]
+    # since all words will have same sensor value
+    # retrieving sensor_id from the first symbol
+    # of the first sensor word
+    sensor_id = sensor_words[0][0]
     return sensor_cost[sensor_id] * distance
