@@ -6,7 +6,50 @@ Created on Thu Oct  8 14:00:53 2020
 """
 import numpy as np
 
-def edit_distance_similarity(query_words, sensor_words):
+sensor_cost = {
+    #1	HipCenter
+    1:1,
+    #2	Spine
+    2:1,
+    #3	ShoulderCenter
+    3:2,
+    #4	Head
+    4:2,
+    #5	ShoulderLeft
+    5:3,
+    #6	ElbowLeft
+    6:4,
+    #7	WristLeft
+    7:5,
+    #8	HandLeft
+    8:5,
+    #9	ShoulderRight
+    9:3,
+    #10	ElbowRight
+    10:4,
+    #11	WristRight
+    11:5,
+    #12	HandRight
+    12:5,
+    #13	HipLeft
+    13:1,
+    #14	KneeLeft
+    14:2,
+    #15	AnkleLeft
+    15:2,
+    #16	FootLeft
+    16:3,
+    #17	HipRight
+    17:1,
+    #18	KneeRight
+    18:2,
+    #19	AnkleRight
+    19:2,
+    #20	FootRight
+    20:3,
+}
+
+def edit_distance_similarity(query_words, sensor_words, sensor_id):
     distance = 0
     row = len(sensor_words) + 1
     col = len(query_words) + 1
@@ -18,15 +61,15 @@ def edit_distance_similarity(query_words, sensor_words):
     for j in range(col):
         ED_matrix[0][j] = j
     
-    for j in range(1,col):
-        for i in range(1,row):
+    for i in range(1,row):
+        for j in range(1,col):
             if sensor_words[i-1] == query_words[j-1]:
-                cost = 0
+                ED_matrix[i][j] = ED_matrix[i-1][j-1]
             else:
                 cost = 1
-            ED_matrix[i][j] = min(ED_matrix[i-1][j] + 1,
-                                  ED_matrix[i][j-1] + 1,
-                                  ED_matrix[i-1][j-1] + cost)
+                ED_matrix[i][j] = min(ED_matrix[i-1][j] + 1,
+                                ED_matrix[i][j-1] + 1,
+                                ED_matrix[i-1][j-1] + cost)
     
-    distance = ED_matrix[i][j]
-    return distance
+    distance = ED_matrix[row-1][col-1]
+    return sensor_cost[sensor_id] * distance

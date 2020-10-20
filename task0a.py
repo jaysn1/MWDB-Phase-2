@@ -140,7 +140,8 @@ def generate_word_vectors(row, word_vector_dict, window_length, shift_length):
 
         if len(temp_list) < window_length:
             break;
-
+        # final symbol would look like (sensor_id, window_element_1, window_element_2, ...)
+        temp_list.insert(0, sensor_id)
         word_vector_dict[temp_key] = tuple(temp_list)
         i += shift_length
 
