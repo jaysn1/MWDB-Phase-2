@@ -115,7 +115,6 @@ def main():
                         time += s
                         word = (component_id, gesture, sensor_id, time)
                     query_words = query[component_id][sensor_id-1]
-                    
                     # Calculate and add up edit distances for the sensor wise words between query and gesture DB
                     distance += edit_distance_similarity(query_words, sensor_words)
             if distance != 0:
