@@ -14,7 +14,7 @@ class K_Means:
 
     # Strategy 1
     def random_centroids(self, data):
-        self.centroids = data.sample(n=self.k)
+        self.centroids = data.sample(n=self.k, random_state = 42)
 
     def fit(self, data):
         self.random_centroids(data)
