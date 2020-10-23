@@ -4,3 +4,4 @@ sklearn
 seaborn
 scipy
 matplotlib
+tqdm
