@@ -15,7 +15,7 @@ def store_gesture_gesture_score_dict(gesture_gesture_score_matrix,
         for row in range(len(gesture_gesture_score_matrix)):
             for col in range(len(gesture_gesture_score_matrix[row])):
                 score, gesture_gesture = gesture_gesture_score_matrix[row][col]
-                f.write("{} : {} \t".format(gesture_gesture, score))
+                f.write("{} : {} \t".format(score, gesture_gesture))
             f.write("\n")
 
 
@@ -33,7 +33,7 @@ def SVD_gesture_gesture(p, gesture_gesture_dir="intermediate/gesture_gesture_sim
     gesture_scores = []
     gestures = list(gesture_gesture_similarity.columns)
     for eigen_vector in eigen_vectors:
-        gesture_score = sorted(zip(gestures, eigen_vector), key=lambda x: x[1])
+        gesture_score = sorted(zip(gestures, eigen_vector), key=lambda x: abs(x[1]), reversed=True)
         gesture_scores.append(gesture_score)
 
     transformed_gestures_gestures_dict = {}

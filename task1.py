@@ -1,4 +1,6 @@
 from sklearn.decomposition import NMF, PCA, TruncatedSVD as SVD, LatentDirichletAllocation as LDA
+from sklearn.utils.testing import ignore_warnings
+from sklearn.exceptions import ConvergenceWarning
 from pandas import DataFrame
 import numpy as np
 import json
@@ -48,7 +50,7 @@ def calculate_pca(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: abs(x[0]), reverse=True)
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -85,7 +87,7 @@ def calculate_svd(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(words, eigen_vector), key=lambda x: x[1])
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: abs(x[0]), reverse=True)
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -94,6 +96,7 @@ def calculate_svd(vector_model, k):
 
     return transformed_gestures_dict, word_scores
 
+@ignore_warnings(category=ConvergenceWarning)
 def calculate_nmf(vector_model, k):
     """
     This function returns a dictionary of top K components from all gestures.
@@ -116,7 +119,7 @@ def calculate_nmf(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: abs(x[0]), reverse=True)
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -145,7 +148,7 @@ def calculate_lda(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(eigen_vector, words), key=lambda x: abs(x[0]), reverse=True)
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}

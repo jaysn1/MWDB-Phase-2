@@ -85,8 +85,16 @@ def main():
 
             p = int(input("Enter the desired p-value (for top-p principal components): "))
 
-            task3.main(user_option, p, latent_semantics_option)
+            try:
+                task3.main(user_option, p, latent_semantics_option)
+            except ValueError as e:
+                print("\n\n" + "="*(len(str(e))+12))
+                print("="*5, str(e), "="*5)
+                print("="*(len(str(e))+12))
+            
 
+        elif task == 4:
+            pass
 
         else:
             break

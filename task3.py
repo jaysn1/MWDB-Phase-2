@@ -166,7 +166,6 @@ def main(user_option, p, latent_semantics_option):
                 gesture_similarity[gesture] = (gesture_similarity[gesture]) ** -1
             gesture_gesture_similarity[gesture_id] = gesture_similarity
 
-
     with open(gesture_gesture_similarity_dir, "w") as write_file:
         json.dump(gesture_gesture_similarity, write_file)
     
@@ -183,6 +182,7 @@ def main(user_option, p, latent_semantics_option):
     with open(transformed_gestures_gestures_dir, "w") as f:
         json.dump(transformed_gestures_gestures_dict, f)
 
+    print("Results generated as \n\t{0}_{1}_gesture_gesture_similarity_dictionary.json\n\t{0}_{1}_gesture_gesture_score.txt".format(mapping[user_option], mapping_2[latent_semantics_option]))
 
 if __name__=='__main__':
     print("""
@@ -204,5 +204,3 @@ if __name__=='__main__':
     task3.main(user_option, p, latent_semantics_option)
 
     main(user_option, p, latent_semantics_option)
-    
-    print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
