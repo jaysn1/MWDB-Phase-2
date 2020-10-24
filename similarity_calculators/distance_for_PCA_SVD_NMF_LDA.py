@@ -20,7 +20,7 @@ def calculate_similarity(query, gesture_data):
     for query_value, gesture_value in zip(query, gesture_data):
         distance += abs(query_value - gesture_value)
     if distance == 0:
-        return float("inf")
+        return 100
     else:
         return 1/distance
 

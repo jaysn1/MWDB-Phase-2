@@ -276,7 +276,7 @@ def generate_word_dictionary(data):
     serialize_data_parameters(data)
     serialize_sensor_avg_std_dict(sensor_avg_std_dict)
 
-    print("Taskoa complete!")
+    print("Task0a complete!")
 
 def set_pandas_display_options() -> None:
     """Set pandas display options."""

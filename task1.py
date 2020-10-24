@@ -216,7 +216,7 @@ def main():
     with open(transformed_data_dir, "w") as f:
         json.dump(transformed_gestures_dict, f)
     
-    print("\nResults for this task are sotred in: ", word_score_file_name)
+    print("\nResults for this task are stored in: ", word_score_file_name)
 
 
 if __name__ == '__main__':
