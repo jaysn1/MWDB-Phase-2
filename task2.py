@@ -36,12 +36,12 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
 
 def main(user_option, gesture_id):
     k = 10
+    mapping = {1: 'DOT', 2: 'PCA', 3: 'SVD', 4: 'NMF', 5: 'LDA', 6: 'ED', 7: 'DTW'}
     vectors_dir="intermediate/vectors_dictionary.json"
     word_vector="intermediate/word_vector_dict.json"
     parameters_path="intermediate/data_parameters.json"
     word_average_dict_dir="intermediate/word_avg_dict.json"
     sensor_average_std_dict_dir = "intermediate/sensor_avg_std_dict.json"
-    transformed_data_dir = "intermediate/{}_transformed_data.json".format(user_option)
 
     with open(vectors_dir) as f:
         vectors = json.load(f)
@@ -56,18 +56,21 @@ def main(user_option, gesture_id):
         return (top_k_similar)
     
     elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
-        if os.path.exists(transformed_data_dir):
-            with open(transformed_data_dir, "r") as f:
-                transformed_data = json.load(f)
-            query = transformed_data[gesture_id]
-            similarity = {}
-            for gesture_id, gesture_data in transformed_data.items():
-                similarity[gesture_id] = calculate_similarity(query, gesture_data)
-            top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
-            return (top_k_similar)
-        else:
+        vector_model = int(input("\n\t1: TF\n\t2: TF-IDF \nEnter vector model to use: "))
+
+        transformed_data_dir = "intermediate/{}_{}_transformed_data.json".format(mapping[user_option], vector_model)
+        if not os.path.exists(transformed_data_dir):
             raise ValueError("Please run task 1 with proper inputs.")
 
+        with open(transformed_data_dir, "r") as f:
+            transformed_data = json.load(f)
+        query = transformed_data[gesture_id]
+        similarity = {}
+        for gesture_id, gesture_data in transformed_data.items():
+            similarity[gesture_id] = calculate_similarity(query, gesture_data)
+        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+        return (top_k_similar)
+        
     elif user_option == 6:
         # Initialize default config
         with open(parameters_path) as f:

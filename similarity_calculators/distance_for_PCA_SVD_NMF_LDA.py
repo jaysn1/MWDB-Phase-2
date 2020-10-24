@@ -27,4 +27,5 @@ def calculate_similarity(query, gesture_data):
     # converted to cosine similarity because
     # k-means wasn't able to process infinity values
     return sim(query, gesture_data)
+    # return -(sqrt(sum([(x-y)**2 for x,y in zip(query, gesture_data)])))
         

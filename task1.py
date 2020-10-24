@@ -155,9 +155,10 @@ def calculate_lda(vector_model, k):
     return transformed_gestures_dict, word_scores
 
 def main(user_option, vector_model, k):
+    mapping = {1: 'PCA', 2: 'SVD', 3: 'NMF', 4: 'LDA'}
     vectors_dir = "intermediate/vectors_dictionary.json"
-    transformed_data_dir = "intermediate/{}_transformed_data.json".format(user_option)
-    word_score_dir = "intermediate/{}_word_score.txt".format(user_option)
+    transformed_data_dir = "intermediate/{}_{}_transformed_data.json".format(mapping[user_option], vector_model)
+    word_score_dir = "intermediate/{}_{}_word_score.txt".format(mapping[user_option], vector_model)
     
     try:
         if user_option == 1:
@@ -178,9 +179,9 @@ def main(user_option, vector_model, k):
     store_word_score_dict(word_score_matrix, word_score_dir)
     with open(transformed_data_dir, "w") as f:
         json.dump(transformed_gestures_dict, f)
-    
-    print("\nResults for this task are sotred in: ", word_score_dir)
 
+    print("""\n{} contains the transformed data.\n{} contains the (word, score) pairs.
+    """.format(transformed_data_dir, word_score_dir))
 
 if __name__ == '__main__':
     print("Executing Task 1 \n")

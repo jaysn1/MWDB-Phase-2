@@ -13,10 +13,10 @@ def store_gesture_gesture_score_dict(gesture_gesture_score_matrix,
                                      gesture_gesture_score_dir="intermediate/gesture_gesture_score.txt"):
     with open(gesture_gesture_score_dir, "w") as f:
         for row in range(len(gesture_gesture_score_matrix)):
-            for col in range(len(gesture_gesture_score_matrix[row])): A
-            score, gesture_gesture = gesture_gesture_score_matrix[row][col]
-            f.write("{} : {} \t".format(gesture_gesture, score))
-        f.write("\n")
+            for col in range(len(gesture_gesture_score_matrix[row])):
+                score, gesture_gesture = gesture_gesture_score_matrix[row][col]
+                f.write("{} : {} \t".format(gesture_gesture, score))
+            f.write("\n")
 
 
 def SVD_gesture_gesture(p, gesture_gesture_dir="intermediate/gesture_gesture_similarity_dictionary.json"):
@@ -45,7 +45,7 @@ def SVD_gesture_gesture(p, gesture_gesture_dir="intermediate/gesture_gesture_sim
 def NMF_gesture_gesture(p, gesture_gesture_dir="intermediate/gesture_gesture_similarity_dictionary.json"):
     gesture_gesture_similarity = pd.read_json(gesture_gesture_dir)
     gestures = np.array(gesture_gesture_similarity)
-    nmf = NMF(n_components=p, init='random', random_state=0)
+    nmf = NMF(n_components=p, init='random', random_state=0, max_iter=500)
     try:
         nmf.fit(gestures)
     except ValueError as e:
