@@ -154,30 +154,10 @@ def calculate_lda(vector_model, k):
 
     return transformed_gestures_dict, word_scores
 
-
-def main():
+def main(user_option, vector_model, k):
     vectors_dir = "intermediate/vectors_dictionary.json"
-    transformed_data_dir = "intermediate/transformed_data.json"
-    word_score_dir = "intermediate/word_score.txt"
-
-
-    print("""
-    ┌─────────────────────────────────────────────────────────────────────────┐
-    │                                                                         │
-    │  Phase 2 -Task 1                                                        │
-    │                                                                         │
-    │    1 - PCA                                                              │
-    │    2 - SVD                                                              │
-    │    3 - NMF                                                              │
-    │    4 - LDA                                                              │
-    │                                                                         │
-    └─────────────────────────────────────────────────────────────────────────┘""")
-    user_option = int(input("\nEnter method to use to find latent latent semantics: "))
-    print("\n1. TF")
-    print("2. TF-IDF")
-    vector_model = int(input("Enter a vector model: "))
-
-    k = int(input("Enter k for top-k latent features: "))
+    transformed_data_dir = "intermediate/{}_transformed_data.json".format(user_option)
+    word_score_dir = "intermediate/{}_word_score.txt".format(user_option)
     
     try:
         if user_option == 1:
@@ -189,11 +169,11 @@ def main():
         elif user_option == 4:
             transformed_gestures_dict, word_score_matrix = calculate_lda(vector_model, k)
         else:
-            print("Incorrect value!")
-            sys.exit(0)            
+            print("Incorrect option!")           
+            return
     except ValueError as e:
-        print(e)
-        sys.exit()
+        print("Error: ", e)
+        return
 
     store_word_score_dict(word_score_matrix, word_score_dir)
     with open(transformed_data_dir, "w") as f:
@@ -203,4 +183,20 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print("Executing Task 1 \n")
+    print("""
+    1 - PCA
+    2 - SVD
+    3 - NMF
+    4 - LDA
+    """)
+    user_option = int(input("\nEnter method to use to find latent latent semantics: "))
+
+    print("""
+        1. TF
+        2. TF-IDF
+        """)
+    vector_model = int(input("Enter a vector model: "))
+
+    k = int(input("Enter k for top-k latent features: "))
+    main(user_option, vector_model, k)

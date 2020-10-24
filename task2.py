@@ -15,7 +15,7 @@ from similarity_calculators.edit_distance_similarity import edit_distance_simila
 from similarity_calculators.dtw_similarity import dynamic_time_warping, multi_dimension_dynamic_time_warping, derivative_dynamic_time_wraping
 from read_word_average_dict import read_word_average_dict
 from read_sensor_average_std_dict import read_sensor_average_std_dict
-import json
+import json, os
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
     query = {}
@@ -34,36 +34,17 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
             query[component_id] = component_words
     return query
 
-def main():
+def main(user_option, gesture_id):
     k = 10
     vectors_dir="intermediate/vectors_dictionary.json"
     word_vector="intermediate/word_vector_dict.json"
     parameters_path="intermediate/data_parameters.json"
     word_average_dict_dir="intermediate/word_avg_dict.json"
     sensor_average_std_dict_dir = "intermediate/sensor_avg_std_dict.json"
+    transformed_data_dir = "intermediate/{}_transformed_data.json".format(user_option)
 
     with open(vectors_dir) as f:
         vectors = json.load(f)
-
-    print("""
-  ┌─────────────────────────────────────────────────────────────────────────┐
-  │                                                                         │
-  │  Phase 2 -Task 2                                                        │
-  │                                                                         │
-  │                                                                         │
-  │    1 - Dot Product                                                      │
-  │    2 - PCA                                                              │
-  │    3 - SVD                                                              │
-  │    4 - NMF                                                              │
-  │    5 - LDA                                                              │
-  │    6 - Edit Distance                                                    │
-  │    7 - DTW Distance                                                     │
-  │                                                                         │
-  └─────────────────────────────────────────────────────────────────────────┘""")
-    user_option = int(input("\nEnter method to use to find similarity: "))
-    
-    gesture_id = input("Enter query gesture: ")
-    assert gesture_id in vectors
     
     if user_option == 1:
         vector_model = int(input("Enter vector model to use? (1: TF, 2: TF-IDF): "))
@@ -72,17 +53,20 @@ def main():
         for gesture in vectors:
             similarity[gesture] = dot_product_similarity(vector,vectors[gesture][vector_model-1])
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
-        print(top_k_similar)
+        return (top_k_similar)
     
     elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
-        with open("intermediate/transformed_data.json", "r") as f:
-            transformed_data = json.load(f)
-        query = transformed_data[gesture_id]
-        similarity = {}
-        for gesture_id, gesture_data in transformed_data.items():
-            similarity[gesture_id] = calculate_similarity(query, gesture_data)
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
-        print(top_k_similar)
+        if os.path.exists(transformed_data_dir):
+            with open(transformed_data_dir, "r") as f:
+                transformed_data = json.load(f)
+            query = transformed_data[gesture_id]
+            similarity = {}
+            for gesture_id, gesture_data in transformed_data.items():
+                similarity[gesture_id] = calculate_similarity(query, gesture_data)
+            top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+            return (top_k_similar)
+        else:
+            raise ValueError("Please run task 1 with proper inputs.")
 
     elif user_option == 6:
         # Initialize default config
@@ -123,7 +107,7 @@ def main():
                 similarity[gesture] = float("inf")
         # Sort the similarities to give the top 10 similar gestures.
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
-        print(top_k_similar)
+        return (top_k_similar)
 
     elif user_option == 7:
         word_average_dict = read_word_average_dict(word_average_dict_dir)
@@ -143,35 +127,7 @@ def main():
                 similarity[gesture] = (similarity[gesture])**-1
 
         top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
-        print("DTW: ", top_k_similar)
+        return (top_k_similar)
         
-        similarity = {}
-        for gesture in word_average_dict:    
-            weights = (sensor_avg_std_dict[gesture_id], sensor_avg_std_dict[gesture])
-            similarity[gesture] = multi_dimension_dynamic_time_warping(word_average_dict[gesture_id],word_average_dict[gesture], weights)
-            
-            if similarity[gesture]==0:
-                similarity[gesture] = float("inf")
-            else:
-                similarity[gesture] = (similarity[gesture])**-1
-                
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
-        print("MD-DTW: ", top_k_similar)
-
-        similarity = {}
-        for gesture in word_average_dict:
-            similarity[gesture] = 0
-            for components_id in word_average_dict[gesture_id]:
-                for sensor_id in word_average_dict[gesture_id][components_id]:
-                    weight = abs(sensor_avg_std_dict[gesture][components_id][sensor_id][0] - sensor_avg_std_dict[gesture_id][components_id][sensor_id][0])
-                    similarity[gesture] += derivative_dynamic_time_wraping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id], weight)
-            if similarity[gesture]==0:
-                similarity[gesture] = float("inf")
-            else:
-                similarity[gesture] = (similarity[gesture])**-1
-
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
-        print("DDTW: ", top_k_similar)
-
- 
-main()
+if __name__ == "__main__": 
+    main()

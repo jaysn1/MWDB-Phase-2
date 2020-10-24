@@ -160,16 +160,8 @@ def generate_vectors():
     print("Task-2 complete!")
 
 def main():
-    # while(True):
-    #     print("\n******************** Task-2 **********************")
-    #     print(" Enter 1 to generate TF, TF-IDF and TF-IDF2 vectors.")
-    #     print(" Enter 2 to exit")
-    #     option = input("Enter option: ")
-    #     if option == '1':
-            task0a.create_output_directories()
-            generate_vectors()
-        # else:
-        #     break
+    task0a.create_output_directories()
+    generate_vectors()
 
 if __name__ == "__main__":
     main()

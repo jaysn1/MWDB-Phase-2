@@ -11,14 +11,10 @@ import fnmatch
 # Read and load parameters from user
 def load_params():
     data = {}
-    # data['directory'] = input("Enter directory: ")
-    # data['window_length'] = int(input("Enter window length: "))
-    # data['shift_length'] = int(input("Enter shift length: "))
-    # data['resolution'] = int(input("Enter resolution: "))
-    data['directory'] = 'data'
-    data['window_length'] = 3
-    data['shift_length'] = 2
-    data['resolution'] = 3
+    data['directory'] = input("Enter directory name: ")
+    data['window_length'] = int(input("Enter window length: "))
+    data['shift_length'] = int(input("Enter shift length: "))
+    data['resolution'] = int(input("Enter resolution: "))
     return data
 
 # Load gesture files from the directory
@@ -292,18 +288,9 @@ def set_pandas_display_options() -> None:
 set_pandas_display_options()
 
 def main():
-    # Menu
-    # while(True):
-    #     print("\n******************** Task-1 **********************")
-    #     print(" Enter 1 to generate word dictionary")
-    #     print(" Enter 2 to exit")
-    #     option = input("Enter option: ")
-    #     if option == '1':
-            data = load_params()
-            create_output_directories()
-            generate_word_dictionary(data)
-        # else:
-        #     break
+    data = load_params()
+    create_output_directories()
+    generate_word_dictionary(data)
 
 if __name__ == "__main__":
     main()
