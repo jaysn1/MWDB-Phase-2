@@ -1,6 +1,6 @@
 #### driver program to run phase 2
 
-import task0a, task0b, task2
+import task0a, task0b, task1, task2
 
 def main():
     while True:
@@ -50,7 +50,7 @@ def main():
             print("""
                 {}_transformed_data.json contains the transformed data.
                 {}_word_score.txt contains the (word, score) pairs.
-                """.format(user_option))
+                """.format(user_option, user_option))
 
         elif task == 2:
             print("Executing Task 2 \n")
@@ -66,7 +66,7 @@ def main():
             user_option = int(input("Enter method to use to find similarity: "))
             gesture_id = input("Enter query gesture: ")
 
-            task2.main(user_option, gesture_id)
+            print(task2.main(user_option, gesture_id))
 
 
 if __name__ == "__main__":
