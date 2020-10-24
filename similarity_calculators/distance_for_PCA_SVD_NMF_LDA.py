@@ -16,15 +16,15 @@ def sim(v1, v2):
     return dot(v1, v2) / (length(v1) * length(v2))
 
 def calculate_similarity(query, gesture_data):
-    # distance = 0
-    # for query_value, gesture_value in zip(query, gesture_data):
-    #     distance += abs(query_value - gesture_value)
-    # if distance == 0:
-    #     return sys.maxsize
-    # else:
-    #     return 1/distance
+    distance = 0
+    for query_value, gesture_value in zip(query, gesture_data):
+        distance += abs(query_value - gesture_value)
+    if distance == 0:
+        return float("inf")
+    else:
+        return 1/distance
 
-    # converted to cosine similarity because
-    # k-means wasn't able to process infinity values
-    return sim(query, gesture_data)
+    # # converted to cosine similarity because
+    # # k-means wasn't able to process infinity values
+    # return sim(query, gesture_data)
         

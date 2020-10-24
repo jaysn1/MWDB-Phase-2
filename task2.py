@@ -70,8 +70,8 @@ def main():
         vector = vectors[gesture_id][vector_model-1]
         similarity = {}
         for gesture in vectors:
-            similarity[gesture] = dot_product_similarity(vector,vectors[gesture][vector_model-1])
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+            similarity[gesture] = dot_product_similarity(vector, vectors[gesture][vector_model-1])
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
     
     elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
@@ -81,7 +81,7 @@ def main():
         similarity = {}
         for gesture_id, gesture_data in transformed_data.items():
             similarity[gesture_id] = calculate_similarity(query, gesture_data)
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
 
     elif user_option == 6:
@@ -122,7 +122,7 @@ def main():
             else:
                 similarity[gesture] = float("inf")
         # Sort the similarities to give the top 10 similar gestures.
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: x[1],reverse=True)[:k]]
         print(top_k_similar)
 
     elif user_option == 7:
@@ -142,7 +142,7 @@ def main():
             else:
                 similarity[gesture] = (similarity[gesture])**-1
 
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
         print("DTW: ", top_k_similar)
         
         similarity = {}
@@ -155,7 +155,7 @@ def main():
             else:
                 similarity[gesture] = (similarity[gesture])**-1
                 
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
         print("MD-DTW: ", top_k_similar)
 
         similarity = {}
@@ -170,7 +170,7 @@ def main():
             else:
                 similarity[gesture] = (similarity[gesture])**-1
 
-        top_k_similar = [_[0] for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
+        top_k_similar = [_ for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
         print("DDTW: ", top_k_similar)
 
  
