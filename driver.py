@@ -123,7 +123,12 @@ def main():
             7 - DTW Distance""")
             user_option = int(input("Enter which type of gesture gesture similarity to use: "))
     
-            task4c.main(user_option)
+            try:
+                task4c.main(user_option)
+            except ValueError as e:
+                print("\n\n" + "="*(len(str(e))+12))
+                print("="*5, str(e), "="*5)
+                print("="*(len(str(e))+12))        
             
         elif task == 7:
             print("""
@@ -136,7 +141,12 @@ def main():
             7 - DTW Distance""")
             user_option = int(input("Enter which type of gesture gesture similarity to use: "))
     
-            task4d.main(user_option)
+            try:
+                task4d.main(user_option)
+            except ValueError as e:
+                print("\n\n" + "="*(len(str(e))+12))
+                print("="*5, str(e), "="*5)
+                print("="*(len(str(e))+12))  
             
 
         else:
