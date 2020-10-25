@@ -17,7 +17,7 @@ def load_params():
     # data['resolution'] = int(input("Enter resolution: "))
     data['directory'] = 'data'
     data['window_length'] = 3
-    data['shift_length'] = 2
+    data['shift_length'] = 3
     data['resolution'] = 3
     return data
 

@@ -6,12 +6,19 @@ Created on Mon Oct 19 14:27:31 2020
 """
 import pandas as pd
 import numpy as np
+import os
+import fnmatch
 from sklearn.decomposition import NMF, TruncatedSVD as SVD
 
+# Delete gesture_gesture_score.txt file if present
+def delete_gesture_gesture_score_text_file(directory):
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*gesture_gesture_score*.txt'):
+            os.remove(os.path.join(root,filename))
 
-def store_gesture_gesture_score_dict(gesture_gesture_score_matrix,
-                                     gesture_gesture_score_dir="intermediate/gesture_gesture_score.txt"):
-    with open(gesture_gesture_score_dir, "w") as f:
+def store_gesture_gesture_score_dict(gesture_gesture_score_matrix, directory, file_name):
+    delete_gesture_gesture_score_text_file(directory)
+    with open(os.path.join(directory, file_name), "w") as f:
         for row in range(len(gesture_gesture_score_matrix)):
             for col in range(len(gesture_gesture_score_matrix[row])):
                 score, gesture = gesture_gesture_score_matrix[row][col]

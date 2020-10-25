@@ -16,6 +16,11 @@ from read_sensor_average_std_dict import read_sensor_average_std_dict
 from task3_util import SVD_gesture_gesture, NMF_gesture_gesture, store_gesture_gesture_score_dict
 from tqdm import tqdm
 
+# Deserialize data parameters
+def deserialize_data_parameters(file_name):
+    with open(file_name, "r") as read_file:
+        data = json.load(read_file)
+    return data
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
     query = {}
@@ -215,7 +220,7 @@ def main():
         with open(gesture_gesture_similarity_dir, "w") as write_file:
             json.dump(gesture_gesture_similarity, write_file)
 
-    gesture_gesture_score_dir = "intermediate/gesture_gesture_score.txt"
+    gesture_gesture_score_file_name = "gesture_gesture_score.txt"
     gesture_gesture_score_json_file_path = "intermediate/gesture_gesture_score.json"
     transformed_gestures_gestures_dir = "intermediate/transformed_gesture_gesture_data.json"
     gesture_scores = []
@@ -227,7 +232,8 @@ def main():
         print("Error latent semantics method not chosen or incorrect, please try again")
         exit(404)
 
-    store_gesture_gesture_score_dict(gesture_scores, gesture_gesture_score_dir)
+    data = deserialize_data_parameters(parameters_path)
+    store_gesture_gesture_score_dict(gesture_scores, data['directory'], gesture_gesture_score_file_name)
 
     with open(transformed_gestures_gestures_dir, "w") as f:
         json.dump(transformed_gestures_gestures_dict, f)
@@ -235,7 +241,7 @@ def main():
     with open(gesture_gesture_score_json_file_path, "w") as f:
         json.dump(gesture_scores, f)
 
-    print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
+    print("\nResults for this task are stored in: ", gesture_gesture_score_file_name)
 
     return gesture_gesture_similarity
 
