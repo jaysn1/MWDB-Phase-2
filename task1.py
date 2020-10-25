@@ -1,10 +1,8 @@
 from sklearn.decomposition import NMF, PCA, TruncatedSVD as SVD, LatentDirichletAllocation as LDA
 from sklearn.utils.testing import ignore_warnings
 from sklearn.exceptions import ConvergenceWarning
-from pandas import DataFrame
 import numpy as np
 import json
-import sys
 
 def store_word_score_dict(word_score_matrix, word_score_dir = "intermediate/word_score.txt"):
     with open(word_score_dir, "w") as f:
@@ -108,7 +106,7 @@ def calculate_nmf(vector_model, k):
     gestures, gesture_ids = read_vectors(vector_model)
 
     gestures = np.array(gestures)
-    nmf = NMF(n_components=k, init='random', random_state=0)
+    nmf = NMF(n_components=k, init='random', random_state=0, max_iter=1000)
     # init: non-negative random matrices initialization
     # random_state=0 : for reproducible results
     nmf.fit(gestures)
@@ -157,12 +155,35 @@ def calculate_lda(vector_model, k):
 
     return transformed_gestures_dict, word_scores
 
+# Deserialize data parameters
+def deserialize_data_parameters(file_name):
+    with open(file_name, "r") as read_file:
+        data = json.load(read_file)
+    return data
+
+# Delete word_score.txt file if present
+def delete_word_score_text_file(directory):
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*word_score*.txt'):
+            os.remove(os.path.join(root,filename))
+
+# Write word_score.txt file
+def write_word_score_text_file(directory, file_name, word_score_matrix):
+    delete_word_score_text_file(directory)
+    with open(os.path.join(directory, file_name), "w") as f:
+        for row in range(len(word_score_matrix)):
+            for col in range(len(word_score_matrix[row])):
+                score, word = word_score_matrix[row][col]
+                f.write("{} : {} \t".format(word, score))
+            f.write("\n")
+
 def main(user_option, vector_model, k):
     mapping = {1: 'PCA', 2: 'SVD', 3: 'NMF', 4: 'LDA'}
     vectors_dir = "intermediate/vectors_dictionary.json"
     transformed_data_dir = "intermediate/{}_{}_transformed_data.json".format(mapping[user_option], vector_model)
     word_score_dir = "intermediate/{}_{}_word_score.txt".format(mapping[user_option], vector_model)
-    
+    # data_parameters_file_name = "intermediate/data_parameters.json"
+
     try:
         if user_option == 1:
             transformed_gestures_dict, word_score_matrix = calculate_pca(vector_model, k)
@@ -179,12 +200,18 @@ def main(user_option, vector_model, k):
         print("Error: ", e)
         return
 
+    # data = deserialize_data_parameters(data_parameters_file_name)
+    # write_word_score_text_file(data['directory'], word_score_file_name, word_score_matrix)
+    # with open(transformed_data_dir, "w") as f:
+    #     json.dump(transformed_gestures_dict, f)
+    
+    # print("\nResults for this task are stored in: ", word_score_file_name)
+
     store_word_score_dict(word_score_matrix, word_score_dir)
     with open(transformed_data_dir, "w") as f:
         json.dump(transformed_gestures_dict, f)
 
-    print("""\n{} contains the transformed data.\n{} contains the (word, score) pairs.
-    """.format(transformed_data_dir, word_score_dir))
+    print("\n{} contains the (word, score) pairs.".format(word_score_dir))
 
 if __name__ == '__main__':
     print("Executing Task 1 \n")

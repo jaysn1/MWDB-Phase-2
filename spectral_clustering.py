@@ -26,7 +26,7 @@ class SpectralClustering:
     def fit(self, data):
         # save list of index values for k-means
         index_list = list(data.index)
-        similarity_matrix = data.values
+        similarity_matrix = np.array(data.values, dtype=float)
 
         # convert similarity matrix to adjacency matrix
         adjacency_matrix = self.convert_to_adjacency_matrix(similarity_matrix)

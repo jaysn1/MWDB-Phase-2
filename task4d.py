@@ -34,7 +34,38 @@ def convert_similarity_dict_to_df(gesture_gesture_similarity_dict):
     gesture_gesture_similarity_df = gesture_gesture_similarity_df.set_index('gesture_id')
     return gesture_gesture_similarity_df
 
-def main():
+def main(user_option):
+    gesture_gesture_similarity_file_path = "intermediate/NMF_gesture_gesture_similarity_dictionary.json"
+    data_parameters_dir = "intermediate/data_parameters.json"
+
+    # deserialize gesture similarity dictionary
+    try:
+        gesture_gesture_similarity_dict = deserialize_gesture_gesture_similarity_dict(gesture_gesture_similarity_file_path)
+    except FileNotFoundError as e:
+        raise ValueError("Run Task 3 with proper input.")
+    # convert gesture similarity dictionary into a dataframe for k-means
+    gesture_gesture_similarity_df = convert_similarity_dict_to_df(gesture_gesture_similarity_dict)
+
+    # reading value of p from data_parameters.json
+    with open(data_parameters_dir) as f:
+        data_parameters = json.load(f)
+    if 'p' not in data_parameters:
+        raise ValueError("Run task 3.")
+    p = data_parameters['p']
+    print("Using p={} from task 3.".format(p))
+
+    # perform spectral clustering
+    spectral_clustering = SpectralClustering(p, max_iter=500)
+    clusters = spectral_clustering.fit(gesture_gesture_similarity_df)
+
+    # output cluster membership of all gestures
+    # count = 0
+    for cluster_number, gestures in clusters.items():
+        print("Under cluster {}:".format(cluster_number + 1))
+        print("\t {}".format(gestures))
+        # count += len(gestures)
+
+if __name__ == "__main__":
     print("""
     ┌─────────────────────────────────────────────────────────────────────────┐
     │                                                                         │
@@ -52,26 +83,8 @@ def main():
     └─────────────────────────────────────────────────────────────────────────┘""")
     
     user_option = int(input("\nEnter which type of gesture gesture similarity to use: "))
-    p = int(input("\nEnter the number of clusters: "))
-    print("Performing k-means clustering on the gesture-gesture similarity matrix...")
-
-    gesture_gesture_similarity_file_path = "intermediate/gesture_gesture_similarity_dictionary.json"
-
-    # deserialize gesture similarity dictionary
-    gesture_gesture_similarity_dict = deserialize_gesture_gesture_similarity_dict(gesture_gesture_similarity_file_path)
-    # convert gesture similarity dictionary into a dataframe for k-means
-    gesture_gesture_similarity_df = convert_similarity_dict_to_df(gesture_gesture_similarity_dict)
-
-    # perform spectral clustering
-    spectral_clustering = SpectralClustering(p, max_iter=500)
-    clusters = spectral_clustering.fit(gesture_gesture_similarity_df)
-
-    # output cluster membership of all gestures
-    count = 0
-    for cluster_number, gestures in clusters.items():
-        print("Under cluster {}:".format(cluster_number + 1))
-        print("\t {}".format(gestures))
-        count += len(gestures)
-
-if __name__ == "__main__":
-    main()
+    
+    print("Performing spectral clustering on the gesture-gesture similarity matrix...")
+    
+    
+    main(user_option)

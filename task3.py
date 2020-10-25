@@ -14,7 +14,7 @@ import concurrent.futures
 from read_word_average_dict import read_word_average_dict
 from read_sensor_average_std_dict import read_sensor_average_std_dict
 from task3_util import SVD_gesture_gesture, NMF_gesture_gesture, store_gesture_gesture_score_dict
-
+from tqdm import tqdm
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
     query = {}
@@ -36,7 +36,7 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
 
 def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_store, s):
     thread_gestures = {}
-    for gesture_id in p_vectors:
+    for gesture_id in tqdm(p_vectors):
         gesture_similarity = {}
         # Get the query gesture words for each component
         query = mega_data_store[gesture_id]
@@ -55,24 +55,6 @@ def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_stor
     return thread_gestures
 
 
-def DTW_thread(p_words, word_average_dict, sensor_avg_std_dict):
-    thread_gestures = {}
-    for gesture_id in p_words:
-        gesture_similarity = {}
-        for gesture in word_average_dict:
-            gesture_similarity[gesture] = 1
-            for components_id in word_average_dict[gesture_id]:
-                for sensor_id in word_average_dict[gesture_id][components_id]:
-                    weight = abs(sensor_avg_std_dict[gesture][components_id][sensor_id][0] -
-                                 sensor_avg_std_dict[gesture_id][components_id][sensor_id][0])
-                    gesture_similarity[gesture] += dynamic_time_warping(
-                        word_average_dict[gesture_id][components_id][sensor_id],
-                        word_average_dict[gesture][components_id][sensor_id], weight)
-            gesture_similarity[gesture] = (gesture_similarity[gesture]) ** -1
-        thread_gestures[gesture_id] = gesture_similarity
-    return thread_gestures
-
-
 def main(user_option, p, latent_semantics_option):
     mapping, mapping_2 = {1:'DOT', 2: 'PCA', 3: 'SVD', 4: 'NMF', 5: 'LDA', 6: 'ED', 7: 'DTW'}, {1: 'SVD', 2: 'NMF'}
     vectors_dir = "intermediate/vectors_dictionary.json"
@@ -80,17 +62,17 @@ def main(user_option, p, latent_semantics_option):
     word_vector = "intermediate/word_vector_dict.json"
     word_average_dict_dir = "intermediate/word_avg_dict.json"
     sensor_average_std_dict_dir = "intermediate/sensor_avg_std_dict.json"
-    gesture_gesture_similarity_dir = "intermediate/{}_{}_gesture_gesture_similarity_dictionary.json".format(mapping[user_option], mapping_2[latent_semantics_option])
+    gesture_gesture_similarity_dir = "intermediate/{}_gesture_gesture_similarity_dictionary.json".format(mapping_2[latent_semantics_option])
+    gesture_gesture_score_json_file_path = "intermediate/{}_gesture_gesture_score.json".format(mapping_2[latent_semantics_option])
     gesture_gesture_score_dir = "intermediate/{}_{}_gesture_gesture_score.txt".format(mapping[user_option], mapping_2[latent_semantics_option])
-    transformed_gestures_gestures_dir = "intermediate/{}_{}_transformed_gesture_gesture_data.json".format(mapping[user_option], mapping_2[latent_semantics_option])
-    
+    transformed_gestures_gestures_dir = "intermediate/{}_transformed_gesture_gesture_data.json".format(mapping_2[latent_semantics_option])
+
     with open(vectors_dir) as f:
         vectors = json.load(f)
 
+    gesture_gesture_similarity = {}
     if user_option == 1:
-        vector_model = int(input("Enter vector model to use? (1: TF, 2: TF-IDF): "))
-
-        gesture_gesture_similarity = {}
+        vector_model = int(input("Enter vector model to use? (1: TF, 2: TF-IDF): "))        
         for gesture_id in vectors:
             vector = vectors[gesture_id][vector_model - 1]
             gesture_similarity = {}
@@ -101,12 +83,12 @@ def main(user_option, p, latent_semantics_option):
     elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
         vector_model = int(input("Enter vector model to use? (1: TF, 2: TF-IDF): "))
         transformed_data_dir = "intermediate/{}_{}_transformed_data.json".format(mapping[user_option], vector_model)
+        
         if not os.path.exists(transformed_data_dir):
             raise ValueError("Please run task 1 with proper inputs.")
-
         with open(transformed_data_dir, "r") as f:
             transformed_data = json.load(f)
-        gesture_gesture_similarity = {}
+
         for gesture_id in transformed_data:
             query = transformed_data[gesture_id]
             gesture_similarity = {}
@@ -115,7 +97,7 @@ def main(user_option, p, latent_semantics_option):
             gesture_gesture_similarity[gesture_id] = gesture_similarity        
 
     elif user_option == 6:
-        threads = 10
+        threads = 1
         # Initialize default config
         with open(parameters_path) as f:
             parameters = json.load(f)
@@ -137,7 +119,6 @@ def main(user_option, p, latent_semantics_option):
             partitioned_vectors.append(list(vectors.keys())[j:j + len(vectors) // threads])
         partitioned_vectors.append(list(vectors.keys())[threads * (len(vectors) // threads):])
 
-        gesture_gesture_similarity = {}
         with concurrent.futures.ThreadPoolExecutor() as executor:
             future = [
                 executor.submit(edit_distance_thread, p_vector, vectors.keys(), components, sensors, mega_data_store, s)
@@ -149,8 +130,6 @@ def main(user_option, p, latent_semantics_option):
     elif user_option == 7:
         word_average_dict = read_word_average_dict(word_average_dict_dir)
         sensor_avg_std_dict = read_sensor_average_std_dict(sensor_average_std_dict_dir)
-
-        gesture_gesture_similarity = {}
 
         for gesture_id in word_average_dict:
             gesture_similarity = {}
@@ -182,7 +161,17 @@ def main(user_option, p, latent_semantics_option):
     with open(transformed_gestures_gestures_dir, "w") as f:
         json.dump(transformed_gestures_gestures_dict, f)
 
-    print("Results generated as \n\t{0}_{1}_gesture_gesture_similarity_dictionary.json\n\t{0}_{1}_gesture_gesture_score.txt".format(mapping[user_option], mapping_2[latent_semantics_option]))
+    with open(gesture_gesture_score_json_file_path, "w") as f:
+            json.dump(gesture_scores, f)
+
+    with open("intermediate/data_parameters.json") as f:
+        data_parameters = json.load(f)
+    data_parameters['p'] = p
+    with open("intermediate/data_parameters.json", "w") as f:
+        json.dump(data_parameters, f)
+
+
+    print("Results generated as \n\t{0}".format(gesture_gesture_score_dir))
 
 if __name__=='__main__':
     print("""

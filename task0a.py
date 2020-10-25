@@ -11,10 +11,14 @@ import fnmatch
 # Read and load parameters from user
 def load_params():
     data = {}
-    data['directory'] = input("Enter directory name: ")
+    data['directory'] = input("Enter directory: ")
     data['window_length'] = int(input("Enter window length: "))
     data['shift_length'] = int(input("Enter shift length: "))
     data['resolution'] = int(input("Enter resolution: "))
+    # data['directory'] = 'data'
+    # data['window_length'] = 3
+    # data['shift_length'] = 2
+    # data['resolution'] = 3
     return data
 
 # Load gesture files from the directory
@@ -211,7 +215,7 @@ def write_word_files(directory, word_vector_dict, word_avg_dict, row_avg_std_dic
             word_file.write("\tSensor ID: " + str(sensor_id) + " Avg Amplitude: " + str(row_avg_std_dict[str((gesture_id, component_id, sensor_id))][0]) + \
                 " & Standard Deviation of Amplitude: " + str(row_avg_std_dict[str((gesture_id, component_id, sensor_id))][1]) + "\n")
         new_key = (component_id, sensor_id, time) 
-        word_file.write("\t\t" + str(new_key) + " -> " + str(value) + ", " + str(word_avg_dict[key]) + "\n")
+        word_file.write("\t\t" + str(new_key) + " -> " + str(value) + ", " + str(word_avg_dict[key][0]) + "\n")
         word_file.close()
         prev_gesture_id = gesture_id
         prev_component_id = component_id
@@ -272,9 +276,9 @@ def generate_word_dictionary(data):
     serialize_data_parameters(data)
     serialize_sensor_avg_std_dict(sensor_avg_std_dict)
 
-    print("Task-1 complete!")
+    print("Task0a complete!")
 
-def set_pandas_display_options() -> None:
+def set_pandas_display_options():
     """Set pandas display options."""
     # Ref: https://stackoverflow.com/a/52432757/
     display = pd.options.display

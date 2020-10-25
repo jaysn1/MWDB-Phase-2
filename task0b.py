@@ -157,8 +157,6 @@ def generate_vectors():
     serialize_vectors_dictionary(vectors_dictionary)
     serialize_word_position_dictionary(word_position_dictionary)
 
-    print("Task-2 complete!")
-
 def main():
     task0a.create_output_directories()
     generate_vectors()
