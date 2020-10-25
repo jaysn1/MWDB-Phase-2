@@ -157,7 +157,7 @@ def generate_vectors():
     serialize_vectors_dictionary(vectors_dictionary)
     serialize_word_position_dictionary(word_position_dictionary)
 
-    print("Task-2 complete!")
+    print("Task0b complete!")
 
 def main():
     # while(True):

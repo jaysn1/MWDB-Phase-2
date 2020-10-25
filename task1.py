@@ -3,14 +3,8 @@ from pandas import DataFrame
 import numpy as np
 import json
 import sys
-
-def store_word_score_dict(word_score_matrix, word_score_dir = "intermediate/word_score.txt"):
-    with open(word_score_dir, "w") as f:
-        for row in range(len(word_score_matrix)):
-            for col in range(len(word_score_matrix[row])):
-                score, word = word_score_matrix[row][col]
-                f.write("{} : {} \t".format(word, score))
-            f.write("\n")
+import os
+import fnmatch
 
 def read_vectors(vector_model, vectors_dir = "intermediate/vectors_dictionary.json"):
     with open(vectors_dir) as f:
@@ -48,7 +42,7 @@ def calculate_pca(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -85,7 +79,7 @@ def calculate_svd(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(words, eigen_vector), key=lambda x: x[1])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -116,7 +110,7 @@ def calculate_nmf(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -145,7 +139,7 @@ def calculate_lda(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -154,11 +148,33 @@ def calculate_lda(vector_model, k):
 
     return transformed_gestures_dict, word_scores
 
+# Deserialize data parameters
+def deserialize_data_parameters(file_name):
+    with open(file_name, "r") as read_file:
+        data = json.load(read_file)
+    return data
+
+# Delete word_score.txt file if present
+def delete_word_score_text_file(directory):
+    for root, dirnames, filenames in os.walk(directory):
+        for filename in fnmatch.filter(filenames, '*word_score*.txt'):
+            os.remove(os.path.join(root,filename))
+
+# Write word_score.txt file
+def write_word_score_text_file(directory, file_name, word_score_matrix):
+    delete_word_score_text_file(directory)
+    with open(os.path.join(directory, file_name), "w") as f:
+        for row in range(len(word_score_matrix)):
+            for col in range(len(word_score_matrix[row])):
+                score, word = word_score_matrix[row][col]
+                f.write("{} : {} \t".format(word, score))
+            f.write("\n")
 
 def main():
     vectors_dir = "intermediate/vectors_dictionary.json"
     transformed_data_dir = "intermediate/transformed_data.json"
-    word_score_dir = "intermediate/word_score.txt"
+    word_score_file_name = "word_score.txt"
+    data_parameters_file_name = "intermediate/data_parameters.json"
 
 
     print("""
@@ -195,11 +211,12 @@ def main():
         print(e)
         sys.exit()
 
-    store_word_score_dict(word_score_matrix, word_score_dir)
+    data = deserialize_data_parameters(data_parameters_file_name)
+    write_word_score_text_file(data['directory'], word_score_file_name, word_score_matrix)
     with open(transformed_data_dir, "w") as f:
         json.dump(transformed_gestures_dict, f)
     
-    print("\nResults for this task are sotred in: ", word_score_dir)
+    print("\nResults for this task are stored in: ", word_score_file_name)
 
 
 if __name__ == '__main__':

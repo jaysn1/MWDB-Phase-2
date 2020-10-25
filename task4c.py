@@ -68,11 +68,11 @@ def main():
     clusters = k_means.fit(gesture_gesture_similarity_df)
 
     # output cluster membership of all gestures
-    count = 0
+    # count = 0
     for cluster_number, gestures in clusters.items():
         print("Under cluster {}:".format(cluster_number + 1))
         print("\t {}".format(gestures))
-        count += len(gestures)
+        # count += len(gestures)
 
 if __name__ == "__main__":
     main()

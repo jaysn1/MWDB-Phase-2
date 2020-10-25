@@ -14,6 +14,7 @@ import concurrent.futures
 from read_word_average_dict import read_word_average_dict
 from read_sensor_average_std_dict import read_sensor_average_std_dict
 from task3_util import SVD_gesture_gesture, NMF_gesture_gesture, store_gesture_gesture_score_dict
+from tqdm import tqdm
 
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
@@ -36,7 +37,7 @@ def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
 
 def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_store, s):
     thread_gestures = {}
-    for gesture_id in p_vectors:
+    for gesture_id in tqdm(p_vectors):
         gesture_similarity = {}
         # Get the query gesture words for each component
         query = mega_data_store[gesture_id]
@@ -59,7 +60,7 @@ def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_stor
 
 def DTW_thread(p_words, word_average_dict, sensor_avg_std_dict):
     thread_gestures = {}
-    for gesture_id in p_words:
+    for gesture_id in tqdm(p_words):
         gesture_similarity = {}
         for gesture in word_average_dict:
             gesture_similarity[gesture] = 0
@@ -117,9 +118,10 @@ def main():
     with open(vectors_dir) as f:
         vectors = json.load(f)
 
+    gesture_gesture_similarity = {}
+
     if user_option == 1:
         vector_model = int(input("Enter vector model to use? (1: TF, 2: TF-IDF): "))
-        gesture_gesture_similarity = {}
         for gesture_id in vectors:
             vector = vectors[gesture_id][vector_model - 1]
             gesture_similarity = {}
@@ -133,7 +135,6 @@ def main():
     elif user_option == 2 or user_option == 3 or user_option == 4 or user_option == 5:
         with open("intermediate/transformed_data.json", "r") as f:
             transformed_data = json.load(f)
-        gesture_gesture_similarity = {}
         for gesture_id in transformed_data:
             query = transformed_data[gesture_id]
             gesture_similarity = {}
@@ -144,7 +145,7 @@ def main():
             json.dump(gesture_gesture_similarity, write_file)
 
     elif user_option == 6:
-        threads = 10
+        threads = 1
         # Initialize default config
         with open(parameters_path) as f:
             parameters = json.load(f)
@@ -178,11 +179,9 @@ def main():
             json.dump(gesture_gesture_similarity, write_file)
 
     elif user_option == 7:
-        threads = 10
+        threads = 1
         word_average_dict = read_word_average_dict(word_average_dict_dir)
         sensor_avg_std_dict = read_sensor_average_std_dict(sensor_average_std_dict_dir)
-
-        gesture_gesture_similarity = {}
 
         for gesture_id in word_average_dict:
             gesture_similarity = {}
@@ -216,24 +215,29 @@ def main():
         with open(gesture_gesture_similarity_dir, "w") as write_file:
             json.dump(gesture_gesture_similarity, write_file)
 
-        gesture_gesture_score_dir = "intermediate/gesture_gesture_score.txt"
-        transformed_gestures_gestures_dir = "intermediate/transformed_gesture_gesture_data.json"
-        gesture_scores = []
-        if latent_semantics_option == 1:
-            transformed_gestures_gestures_dict, gesture_scores = SVD_gesture_gesture(p)
-        elif latent_semantics_option == 2:
-            transformed_gestures_gestures_dict, gesture_scores = NMF_gesture_gesture(p)
-        else:
-            print("Error latent semantics method not chosen or incorrect, please try again")
-            exit(404)
-        store_gesture_gesture_score_dict(gesture_scores, gesture_gesture_score_dir)
+    gesture_gesture_score_dir = "intermediate/gesture_gesture_score.txt"
+    gesture_gesture_score_json_file_path = "intermediate/gesture_gesture_score.json"
+    transformed_gestures_gestures_dir = "intermediate/transformed_gesture_gesture_data.json"
+    gesture_scores = []
+    if latent_semantics_option == 1:
+        transformed_gestures_gestures_dict, gesture_scores = SVD_gesture_gesture(p)
+    elif latent_semantics_option == 2:
+        transformed_gestures_gestures_dict, gesture_scores = NMF_gesture_gesture(p)
+    else:
+        print("Error latent semantics method not chosen or incorrect, please try again")
+        exit(404)
 
-        with open(transformed_gestures_gestures_dir, "w") as f:
-            json.dump(transformed_gestures_gestures_dict, f)
+    store_gesture_gesture_score_dict(gesture_scores, gesture_gesture_score_dir)
 
-        print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
+    with open(transformed_gestures_gestures_dir, "w") as f:
+        json.dump(transformed_gestures_gestures_dict, f)
 
-        return gesture_gesture_similarity
+    with open(gesture_gesture_score_json_file_path, "w") as f:
+        json.dump(gesture_scores, f)
+
+    print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
+
+    return gesture_gesture_similarity
 
 
 c = main()
