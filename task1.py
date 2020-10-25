@@ -181,7 +181,7 @@ def main(user_option, vector_model, k):
     mapping = {1: 'PCA', 2: 'SVD', 3: 'NMF', 4: 'LDA'}
     vectors_dir = "intermediate/vectors_dictionary.json"
     transformed_data_dir = "intermediate/{}_{}_transformed_data.json".format(mapping[user_option], vector_model)
-    word_score_dir = "intermediate/{}_{}_word_score.txt".format(mapping[user_option], vector_model)
+    word_score_dir = "output/{}_{}_word_score.txt".format(mapping[user_option], vector_model)
     # data_parameters_file_name = "intermediate/data_parameters.json"
 
     try:

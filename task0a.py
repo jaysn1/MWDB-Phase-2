@@ -44,6 +44,9 @@ def create_output_directories():
     outdir = './intermediate'
     if not os.path.exists(outdir):
         os.mkdir(outdir)
+    outdir = './output'
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
 
 # Evaluate normal distribution
 def normal_distribution_function(x, mean=0, std=0.25):
