@@ -100,7 +100,7 @@ def main(user_option, gesture_id):
                     query_words = query[component_id][sensor_id-1]
                     # Calculate and add up edit distances for the sensor wise words between query and gesture DB
                     distance += edit_distance_similarity(query_words, sensor_words)
-            similarity[gesture] = distance ** -1
+            similarity[gesture] = 1/distance
 
     elif user_option == 7:
         word_average_dict = read_word_average_dict(word_average_dict_dir)
@@ -115,7 +115,7 @@ def main(user_option, gesture_id):
                     weight = abs(sensor_avg_std_dict[gesture][components_id][sensor_id][0] - sensor_avg_std_dict[gesture_id][components_id][sensor_id][0])
                     similarity[gesture] += dynamic_time_warping(word_average_dict[gesture_id][components_id][sensor_id],word_average_dict[gesture][components_id][sensor_id], weight)
             
-            similarity[gesture] = (similarity[gesture])**-1
+            similarity[gesture] = 1/similarity[gesture]
 
 
     top_k_similar = [("(%s, %2.6f)"%(_)) for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]

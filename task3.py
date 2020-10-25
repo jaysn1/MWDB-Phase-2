@@ -142,7 +142,7 @@ def main(user_option, p, latent_semantics_option):
                         gesture_similarity[gesture] += dynamic_time_warping(
                             word_average_dict[gesture_id][components_id][sensor_id],
                             word_average_dict[gesture][components_id][sensor_id], weight)
-                gesture_similarity[gesture] = (gesture_similarity[gesture]) ** -1
+                gesture_similarity[gesture] = 1/gesture_similarity[gesture]
             gesture_gesture_similarity[gesture_id] = gesture_similarity
 
     with open(gesture_gesture_similarity_dir, "w") as write_file:
