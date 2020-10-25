@@ -35,7 +35,7 @@ def SVD_gesture_gesture(p, gesture_gesture_dir):
     gesture_scores = []
     gestures = list(gesture_gesture_similarity.columns)
     for eigen_vector in eigen_vectors:
-        gesture_score = sorted(zip(eigen_vector, gestures), key=lambda x: abs(x[0]), reverse=True)
+        gesture_score = sorted(zip(gestures, eigen_vector), key=lambda x: abs(x[0]), reverse=True)
         gesture_scores.append(gesture_score)
 
     transformed_gestures_gestures_dict = {}
@@ -59,7 +59,7 @@ def NMF_gesture_gesture(p, gesture_gesture_dir):
     gesture_scores = []
     gestures = list(gesture_gesture_similarity.columns)
     for eigen_vector in eigen_vectors:
-        gesture_score = sorted(zip(eigen_vector, gestures), key=lambda x: abs(x[0]), reverse=True)
+        gesture_score = sorted(zip(gestures, eigen_vector), key=lambda x: abs(x[0]), reverse=True)
         gesture_scores.append(gesture_score)
 
     transformed_gestures_gestures_dict = {}
