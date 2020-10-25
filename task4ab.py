@@ -20,12 +20,12 @@ def main(user_option):
         latent_topic = gesture_latent_topic[i]
         sum_of_all_scores = 0
         for gesture_score in latent_topic:
-            sum_of_all_scores += abs(gesture_score[0])
+            sum_of_all_scores += abs(gesture_score[1])
         for gesture_score in latent_topic:
             if i not in gesture_percentage_dict:
                 gesture_percentage_dict[i] = {}
-            set_of_all_gestures.add(gesture_score[1])
-            gesture_percentage_dict[i][gesture_score[1]] = gesture_score[0]/sum_of_all_scores
+            set_of_all_gestures.add(gesture_score[0])
+            gesture_percentage_dict[i][gesture_score[0]] = gesture_score[1]/sum_of_all_scores
 
     list_of_all_gestures = list(set_of_all_gestures)
     clusters = {}

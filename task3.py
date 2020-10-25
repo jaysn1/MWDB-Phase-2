@@ -131,7 +131,7 @@ def main(user_option, p, latent_semantics_option):
         word_average_dict = read_word_average_dict(word_average_dict_dir)
         sensor_avg_std_dict = read_sensor_average_std_dict(sensor_average_std_dict_dir)
 
-        for gesture_id in word_average_dict:
+        for gesture_id in tqdm(word_average_dict):
             gesture_similarity = {}
             for gesture in word_average_dict:
                 gesture_similarity[gesture] = 1
