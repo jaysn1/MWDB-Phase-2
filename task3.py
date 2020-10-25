@@ -62,7 +62,7 @@ def main(user_option, p, latent_semantics_option):
     word_vector = "intermediate/word_vector_dict.json"
     word_average_dict_dir = "intermediate/word_avg_dict.json"
     sensor_average_std_dict_dir = "intermediate/sensor_avg_std_dict.json"
-    gesture_gesture_similarity_dir = "intermediate/{}_{}_gesture_gesture_similarity_dictionary.json".format(mapping[user_option], mapping_2[latent_semantics_option])
+    gesture_gesture_similarity_dir = "intermediate/{}_gesture_gesture_similarity_dictionary.json".format(mapping[user_option])
     gesture_gesture_score_json_file_path = "intermediate/{}_gesture_gesture_score.json".format(mapping_2[latent_semantics_option])
     gesture_gesture_score_dir = "intermediate/{}_{}_gesture_gesture_score.txt".format(mapping[user_option], mapping_2[latent_semantics_option])
     transformed_gestures_gestures_dir = "intermediate/{}_transformed_gesture_gesture_data.json".format(mapping_2[latent_semantics_option])

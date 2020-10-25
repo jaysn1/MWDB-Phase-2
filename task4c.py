@@ -36,7 +36,7 @@ def convert_similarity_dict_to_df(gesture_gesture_similarity_dict):
 
 def main(user_option):
     mapping = {1:'DOT', 2: 'PCA', 3: 'SVD', 4: 'NMF', 5: 'LDA', 6: 'ED', 7: 'DTW'}
-    gesture_gesture_similarity_file_path = "intermediate/{}_SVD_gesture_gesture_similarity_dictionary.json".format(mapping[user_option])
+    gesture_gesture_similarity_file_path = "intermediate/{}_gesture_gesture_similarity_dictionary.json".format(mapping[user_option])
     data_parameters_dir = "intermediate/data_parameters.json"
 
     # deserialize gesture similarity dictionary
