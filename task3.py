@@ -216,6 +216,7 @@ def main():
             json.dump(gesture_gesture_similarity, write_file)
 
     gesture_gesture_score_dir = "intermediate/gesture_gesture_score.txt"
+    gesture_gesture_score_json_file_path = "intermediate/gesture_gesture_score.json"
     transformed_gestures_gestures_dir = "intermediate/transformed_gesture_gesture_data.json"
     gesture_scores = []
     if latent_semantics_option == 1:
@@ -230,6 +231,9 @@ def main():
 
     with open(transformed_gestures_gestures_dir, "w") as f:
         json.dump(transformed_gestures_gestures_dict, f)
+
+    with open(gesture_gesture_score_json_file_path, "w") as f:
+        json.dump(gesture_scores, f)
 
     print("\nResults for this task are stored in: ", gesture_gesture_score_dir)
 

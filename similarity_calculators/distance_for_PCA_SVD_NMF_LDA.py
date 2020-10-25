@@ -6,23 +6,20 @@ Created on Mon Oct 12 18:52:03 2020
 """
 from math import sqrt
 
-def dot(v1, v2):
-    return sum(x*y for x, y in zip(v1, v2))
+# def dot(v1, v2):
+#     return sum(x*y for x, y in zip(v1, v2))
 
-def length(v):
-    return sqrt(dot(v, v))
+# def length(v):
+#     return sqrt(dot(v, v))
 
-def sim(v1, v2): 
-    return dot(v1, v2) / (length(v1) * length(v2))
+# def sim(v1, v2): 
+#     return dot(v1, v2) / (length(v1) * length(v2))
 
 def calculate_similarity(query, gesture_data):
-    distance = 0
+    distance = 1
     for query_value, gesture_value in zip(query, gesture_data):
         distance += abs(query_value - gesture_value)
-    if distance == 0:
-        return 100
-    else:
-        return 1/distance
+    return 1/distance
 
     # # converted to cosine similarity because
     # # k-means wasn't able to process infinity values

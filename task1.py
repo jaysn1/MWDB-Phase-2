@@ -42,7 +42,7 @@ def calculate_pca(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -79,7 +79,7 @@ def calculate_svd(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -110,7 +110,7 @@ def calculate_nmf(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
@@ -139,7 +139,7 @@ def calculate_lda(vector_model, k):
     word_position_dictionary = read_words()
     words = sorted(word_position_dictionary.keys(), key=lambda x: word_position_dictionary[x])
     for eigen_vector in eigen_vectors:
-        word_score = sorted(zip(eigen_vector, words), key=lambda x: -x[0])
+        word_score = sorted(zip(abs(eigen_vector), words), key=lambda x: -x[0])
         word_scores.append(word_score)
 
     transformed_gestures_dict = {}
