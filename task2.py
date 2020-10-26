@@ -1,14 +1,3 @@
-# task2
-# Implement a program which, given a gesture file and a vector model, finds and ranks the 10 most similar gestures
-# in the gesture database, relying on the following:
-
-# – user option #1: dot product of gesture vectors,
-# – user options #2, 3, 4, 5: top-k latent sensor semantics (PCA, SVD, NMF, LDA),
-# – user option #6: edit distance on symbolic quantized window descriptors (propose an edit cost function among
-# symbols),
-# – user option #7: DTW distance on average quantized amplitudes
-
-# Results are presented in the form of hgesture, scorei pairs sorted in non-increasing order of similarity scores.
 from similarity_calculators.dot_product_similarity import dot_product_similarity
 from similarity_calculators.distance_for_PCA_SVD_NMF_LDA import calculate_similarity
 from similarity_calculators.edit_distance_similarity import edit_distance_similarity
