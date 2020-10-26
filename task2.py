@@ -42,6 +42,7 @@ def main(user_option, gesture_id):
     parameters_path="intermediate/data_parameters.json"
     word_average_dict_dir="intermediate/word_avg_dict.json"
     sensor_average_std_dict_dir = "intermediate/sensor_avg_std_dict.json"
+    result_dir = "output/{}_{}_top10.txt".format(mapping[user_option], gesture_id)
 
     with open(vectors_dir) as f:
         vectors = json.load(f)
@@ -119,6 +120,10 @@ def main(user_option, gesture_id):
 
 
     top_k_similar = [("(%s, %2.6f)"%(_)) for _ in sorted(similarity.items(), key=lambda x: [x[1], int(x[0])],reverse=True)[:k]]
+    with open(result_dir, "w") as f:
+        f.write(", ".join(top_k_similar))
+    print("Results are stored in file: {}\n".format(result_dir))
+
     return ", ".join(top_k_similar)
         
 if __name__ == "__main__": 

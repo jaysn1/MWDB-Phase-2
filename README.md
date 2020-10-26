@@ -20,9 +20,7 @@
 ## Steps to execute tasks
 ```
 > source venv/bin/activate
-> python task0a.py
-> python task0b.py
-> python task2.py
+> python driver.py
 ```
 
 All serialized objects will be generated in the intermediate folder

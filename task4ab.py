@@ -9,10 +9,13 @@ def deserialize_gesture_latent_topic(file_name):
 def main(user_option):
     mapping = {1: 'SVD', 2: 'NMF'}
     gesture_gesture_score_json_file_path = "intermediate/{}_gesture_gesture_score.json".format(mapping[user_option])
+    result_dir = "output/{}_clusters.txt".format(mapping[user_option])
+
     try:
         gesture_latent_topic = deserialize_gesture_latent_topic(gesture_gesture_score_json_file_path)
     except FileNotFoundError as e:
         raise ValueError("Run task 3 with proper input.")
+
     set_of_all_gestures = set()
     gesture_percentage_dict = {}
     # calculate percentage contribution of each gesture in latent topic
@@ -42,11 +45,16 @@ def main(user_option):
         clusters[cluster_index].append(gesture_id)
 
     # output cluster membership of all gestures
-    # count = 0
+    result = []
     for cluster_number, gestures in clusters.items():
         print("Under cluster {}:".format(cluster_number + 1))
         print("\t {}".format(gestures))
-        # count += len(gestures)
+        result.append("Under cluster {}:".format(cluster_number + 1))
+        result.append("\t {}".format(gestures))
+
+    print("\n\nResults are stored in file: {}".format(result_dir))
+    with open(result_dir, "w") as f:
+        f.write("\n".join(result))
 
 if __name__ == '__main__':
     print("""

@@ -38,6 +38,7 @@ def main(user_option):
     mapping = {1:'DOT', 2: 'PCA', 3: 'SVD', 4: 'NMF', 5: 'LDA', 6: 'ED', 7: 'DTW'}
     gesture_gesture_similarity_file_path = "intermediate/{}_gesture_gesture_similarity_dictionary.json".format(mapping[user_option])
     data_parameters_dir = "intermediate/data_parameters.json"
+    result_dir = "output/{}_kmeans_clusters.txt".format(mapping[user_option])
 
     # deserialize gesture similarity dictionary
     try:
@@ -60,11 +61,16 @@ def main(user_option):
     clusters = k_means.fit(gesture_gesture_similarity_df)
 
     # output cluster membership of all gestures
-    # count = 0
+    result = []
     for cluster_number, gestures in clusters.items():
         print("Under cluster {}:".format(cluster_number + 1))
         print("\t {}".format(gestures))
-        # count += len(gestures)
+        result.append("Under cluster {}:".format(cluster_number + 1))
+        result.append("\t {}".format(gestures))
+
+    print("\n\nResults are stored in file: {}".format(result_dir))
+    with open(result_dir, "w") as f:
+        f.write("\n".join(result))
 
 if __name__ == "__main__":
     print("""
