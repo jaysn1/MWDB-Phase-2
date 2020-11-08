@@ -1,0 +1,13 @@
+pandas
+numpy
+sklearn
+seaborn
+scipy
+matplotlib
+tqdm
+fnmatch
+statistics
+math
+json
+os
+concurrent
