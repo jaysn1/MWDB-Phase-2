@@ -1,7 +1,10 @@
 data/*.wrd
 data/*_vectors_*.txt
-data/.DS_Store
 intermediate/*
+<<<<<<< HEAD
 output/*
 venv/
 __pycache__
+=======
+venv/
+>>>>>>> 3b67fda1eaff9ee7759d43ffbf157a01fe8d3cc1
