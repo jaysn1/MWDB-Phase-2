@@ -12,6 +12,7 @@ KDD, pages 653658, 2004”
 for a personalized PageRank formulation based on RandomWalks with re-start.
 
 author: Monil
+TODO: Visualise < m > dominant gestures?
 """
 from Phase2 import task0a, task0b
 from Phase2.similarity_calculators.dot_product_similarity import dot_product_similarity
@@ -241,7 +242,7 @@ def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
 
 if __name__=="__main__":
 
-    gesture_gesture_similarity = task1_initial_setup()
+    gesture_gesture_similarity = task1_initial_setup(1, 0, False)
 
     k, m = 4, 10
     seed_nodes = ["1", "2", "3", "4"]
