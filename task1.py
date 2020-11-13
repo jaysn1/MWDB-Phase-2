@@ -16,12 +16,13 @@ TODO: Visualise < m > dominant gestures?
 """
 from Phase2 import task0a, task0b
 from Phase2.similarity_calculators.dot_product_similarity import dot_product_similarity
-from Phase1.helper import min_max_scaler
+from Phase1.helper import min_max_scaler, load_data
+from visualize import visualize
 
 from copy import deepcopy
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import os, json, pickle
 
 
@@ -98,6 +99,7 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
     # 0. Select top k edges and make a adjacent matrix representaion of graph
     # 1. Convert matrix to graph representation 
     # 2. personalise run page rank algo with seed nodes taken from user and beta
+    parameters_dir = "intermediate/data_parameters.json"
 
     G = {}
     for node in gesture_gesture_matrix:
@@ -119,21 +121,40 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
     graph = nx.convert_matrix.from_numpy_matrix(G)
     pr = pagerank(graph, beta, topic)
 
-    graph = nx.relabel_nodes(graph, node_inv_map, copy=True)
-    pos=nx.spring_layout(graph)
-    nx.draw(graph, pos, with_labels = True)
-    pr_scaled = min_max_scaler([pr], feature_range=(100, 1000))
+    # graph = nx.relabel_nodes(graph, node_inv_map, copy=True)
+    # pos=nx.spring_layout(graph)
+    # nx.draw(graph, pos, with_labels = True)
+    # pr_scaled = min_max_scaler([pr], feature_range=(100, 1000))
 
-    nx.draw(graph, pos, node_size = pr_scaled)
-    if '_edge_labels' in kwargs and kwargs['_edge_labels']==True:
-        edge_labels = dict([((u,v,),d['weight']) for u,v,d in graph.edges(data=True)])
-        nx.draw_networkx_edge_labels(graph,pos,edge_labels=edge_labels)
+    # nx.draw(graph, pos, node_size = pr_scaled)
+    # if '_edge_labels' in kwargs and kwargs['_edge_labels']==True:
+    #     edge_labels = dict([((u,v,),d['weight']) for u,v,d in graph.edges(data=True)])
+    #     nx.draw_networkx_edge_labels(graph,pos,edge_labels=edge_labels)
 
-    plt.show()
+    # plt.show()
 
     ppr_score = {node_inv_map[i]: pr[i] for i in range(len(G))}
-    
-    return [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
+    top_m_ppr = [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
+
+    with open(parameters_dir) as f:
+        data_parameters = json.load(f)
+    data = data_parameters['directory']
+    resolution = data_parameters['resolution']
+    for gesture in top_m_ppr:
+        (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
+                    np.array(load_data(f"{data}/Y/{gesture}.csv")), 
+                    np.array(load_data(f"{data}/Z/{gesture}.csv")), 
+                    np.array(load_data(f"{data}/W/{gesture}.csv")))
+
+        plt.figure(figsize=(18,10))
+        visualize(x, plt.subplot(2,2,1), None, resolution, f'{gesture}-X')
+        visualize(y, plt.subplot(2,2,2), None, resolution, f'{gesture}-Y')
+        visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
+        visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
+        
+        plt.show(block=False)
+    plt.show()
+    return top_m_ppr
 
 def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
     """
@@ -244,7 +265,7 @@ if __name__=="__main__":
 
     gesture_gesture_similarity = task1_initial_setup(1, 0, False)
 
-    k, m = 4, 10
+    k, m = 4, 3
     seed_nodes = ["1", "2", "3", "4"]
     dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, _edge_labels = False)
     print(dominant_gestures)
