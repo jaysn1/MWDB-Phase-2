@@ -136,24 +136,25 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
     ppr_score = {node_inv_map[i]: pr[i] for i in range(len(G))}
     top_m_ppr = [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
 
-    with open(parameters_dir) as f:
-        data_parameters = json.load(f)
-    data = data_parameters['directory']
-    resolution = data_parameters['resolution']
-    for gesture in top_m_ppr:
-        (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
-                    np.array(load_data(f"{data}/Y/{gesture}.csv")), 
-                    np.array(load_data(f"{data}/Z/{gesture}.csv")), 
-                    np.array(load_data(f"{data}/W/{gesture}.csv")))
+    if 'viz' in kwargs and kwargs['viz']:
+        with open(parameters_dir) as f:
+            data_parameters = json.load(f)
+        data = data_parameters['directory']
+        resolution = data_parameters['resolution']
+        for gesture in top_m_ppr:
+            (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
+                        np.array(load_data(f"{data}/Y/{gesture}.csv")), 
+                        np.array(load_data(f"{data}/Z/{gesture}.csv")), 
+                        np.array(load_data(f"{data}/W/{gesture}.csv")))
 
-        plt.figure(figsize=(18,10))
-        visualize(x, plt.subplot(2,2,1), None, resolution, f'{gesture}-X')
-        visualize(y, plt.subplot(2,2,2), None, resolution, f'{gesture}-Y')
-        visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
-        visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
-        
-        plt.show(block=False)
-    plt.show()
+            plt.figure(figsize=(18,10))
+            visualize(x, plt.subplot(2,2,1), None, resolution, f'{gesture}-X')
+            visualize(y, plt.subplot(2,2,2), None, resolution, f'{gesture}-Y')
+            visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
+            visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
+            
+            plt.show(block=False)
+        plt.show()
     return top_m_ppr
 
 def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
@@ -264,8 +265,9 @@ def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
 if __name__=="__main__":
 
     gesture_gesture_similarity = task1_initial_setup(1, 0, False)
+    viz = True
 
     k, m = 4, 3
     seed_nodes = ["1", "2", "3", "4"]
-    dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, _edge_labels = False)
+    dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, viz=viz, _edge_labels = False)
     print(dominant_gestures)

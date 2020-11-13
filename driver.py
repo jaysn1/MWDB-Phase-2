@@ -41,6 +41,7 @@ def main():
             seed_nodes.append(input(f"Enter name of seed node {i+1}: "))
         dominant_gestures = task1.main(gesture_gesture_similarity, k, m, seed_nodes, _edge_labels = False)
         print(dominant_gestures)
+        
 
     elif task==2:
         pass
