@@ -55,17 +55,17 @@ def make_shift_accuracy(predictions):
     accuracy = correct / len(predictions)
     return accuracy
         
-def main(): 
-    training_labels_dir = 'data/sample_training_labels.xlsx'
-    all_labels_dir = 'data/all_labels.xlsx'
-    training_labels = read_labels(training_labels_dir)
-    all_labels = read_labels(all_labels_dir)
+# def main(): 
+training_labels_dir = 'data/sample_training_labels.xlsx'
+all_labels_dir = 'data/all_labels.xlsx'
+training_labels = read_labels(training_labels_dir)
+all_labels = read_labels(all_labels_dir)
 
-    gestures = task1.calculate_pca(1, 4)[0]
-    unlabeled_gestures, labeled_gestures = split_data(gestures, all_labels, training_labels)
-    predictions = KNN(unlabeled_gestures, labeled_gestures)
-    accuracy = make_shift_accuracy(predictions)
-    print("KNN accuracy: ", accuracy)
+gestures = task1.calculate_pca(1, 4)[0]
+unlabeled_gestures, labeled_gestures = split_data(gestures, all_labels, training_labels)
+predictions = KNN(unlabeled_gestures, labeled_gestures)
+accuracy = make_shift_accuracy(predictions)
+print("KNN accuracy: ", accuracy)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()

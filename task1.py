@@ -16,13 +16,19 @@ TODO: Visualise < m > dominant gestures?
 """
 from Phase2 import task0a, task0b, task1 as phase2task1
 from Phase2.similarity_calculators.dot_product_similarity import dot_product_similarity
+from Phase2.similarity_calculators.edit_distance_similarity import edit_distance_similarity
 from Phase2.similarity_calculators.distance_for_PCA_SVD_NMF_LDA import calculate_similarity
+from Phase2.similarity_calculators.dtw_similarity import dynamic_time_warping
+from Phase2.read_word_average_dict import read_word_average_dict
+from Phase2.read_sensor_average_std_dict import read_sensor_average_std_dict
 from Phase1.helper import min_max_scaler, load_data
 from visualize import visualize
+from tqdm import tqdm
+import networkx as nx
+import concurrent.futures
 
 from copy import deepcopy
 import numpy as np
-import networkx as nx
 import matplotlib.pyplot as plt
 import os, json, pickle
 
