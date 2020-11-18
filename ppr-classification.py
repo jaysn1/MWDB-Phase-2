@@ -1,15 +1,16 @@
 from task1 import pagerank, task1_initial_setup
 import json 
-# import time 
 
 import numpy as np
 import pandas as pd
 import networkx as nx
 
+# Code to use Monil's PPR code (Not working now)
 def work(gesture_gesture_matrix, seed_nodes, beta):
     G = {}
     for node in gesture_gesture_matrix:
-        G[node] = [_[0] for _ in sorted(gesture_gesture_matrix[node].items(), key=lambda x: x[1], reverse=True)]
+        # G[node] = [_[0] for _ in sorted(gesture_gesture_matrix[node].items(), key=lambda x: x[1], reverse=True)]
+        G[node] = [_[0] for _ in gesture_gesture_matrix[node].items()]
     node_map = {node:i for i,node in enumerate(G.keys())}
     node_inv_map = {i:node for i,node in enumerate(G.keys())}
 
@@ -29,17 +30,16 @@ def work(gesture_gesture_matrix, seed_nodes, beta):
     ppr_score = {node_inv_map[i]: pr[i] for i in range(len(G))}
     return ppr_score
 
+
+# Different PPR Code for classification
 def pageRank(graph, input_images, beta=0.85, epsilon=0.000001):
     nodes = len(graph)
 
-    # Dictionaries mapping index number of adjacency matrix to the image IDs and vice-a-versa
-    # index_img_dict = dict(csv.reader(open('IndexToImage.csv', 'r')))
-    # img_index_dict = dict([[v, k] for k, v in index_img_dict.items()])
-    
+    # Keeping record of index and gestures IDs (Since gesture ID values may not be in order)
     training_labels_dir = 'data/all_labels.xlsx'
     tr_labels = read_labels(training_labels_dir)
     index_img_dict = tr_labels[0]
-    img_index_dict = {str(y):str(x) for x,y in tr_labels[0].items()}
+    img_index_dict = {str(y):str(x) for x,y in tr_labels[0].items()} # Step to make a dict with the gestures IDs as key and their serial numbers as values
 
     M = graph / np.sum(graph, axis=0)
 
@@ -66,6 +66,7 @@ def read_labels(labels_dir):
     labels = pd.read_excel(labels_dir, header=None)
     return labels.to_dict()
 
+# Check accuracy of PPR Classifier
 def acc_check(results, tr_labels):
     correct_labels = {}
     for i in tr_labels[0]:
@@ -84,10 +85,65 @@ def acc_check(results, tr_labels):
     acc = (acc / len(correct_labels)) * 100
     return acc
 
+def labelling(output):
+    # Assigning label to each image based on the highest Page Rank score value
+    image_labels = []   
+    for i in range(0, len(output[0][1])):
+        compare = []
+        for item in output:
+            compare.append([item[0], i, item[1][i]])
+        image_labels.append(sorted(compare, reverse=True, key=lambda x: x[2])[0])
+
+    # Dataset with the correct label for all the datasets
+    actual_labels = 'data/all_labels.xlsx'
+    tr_labels = read_labels(actual_labels)
+    index_img_dict = tr_labels[0]
+    index_img_dict = {str(x):str(y) for x,y in tr_labels[0].items()} # Step to convert values to string type
+
+    # Grouping images for each labels
+    final_output = dict()
+    for elem in image_labels:
+        if elem[0] not in final_output:
+            final_output[elem[0]] = []
+        final_output[elem[0]].append(index_img_dict[str(elem[1])])
+
+    # File with all predicted labels for the input gestures
+    with open('res_labels.json', 'w') as f:
+        f.write(json.dumps(final_output, indent = 2))
+ 
+    return final_output, tr_labels
+
+def label_m(output):
+    final = {}
+    final_labels = {}
+
+    for li in output.keys():
+        for k in output[li].keys():
+            output[li][k] = output[li][k][0]
+
+    # for li in output.keys():
+    #     for k in output[li].keys():
+    #         if k in final.keys():
+    #             if output[li][k][0] > final[k]:
+    #                 final[k] = output[li][k][0]
+    #                 final_labels[k] = li
+    #         else:
+    #             final[k] = output[li][k][0]
+    #             final_labels[k] = li
+
+    # print(final)
+
+    with open('res_labels.json', 'w') as f:
+        f.write(json.dumps(output, indent = 2))
+
+    return final_labels
+
+
 
 def main():
     print('Loading Image-Image Similarity Matrix...')
     data = task1_initial_setup(1, 0, False)
+    # gr_m = task1_initial_setup(1, 0, False)
     graph = pd.DataFrame.from_dict(data).values
 
     labels = set()
@@ -107,44 +163,29 @@ def main():
         input_image_label_pair.append([image_id, label])
 
     # Calculating Personalized Page Rank for each label once.
+    print("Running PPR for each label")
     output = []
+    # output = {}
     label_dict = dict()
     count = 0
     for label in labels:
         label_dict[str(count)] = label
         count += 1
-        print('Calculating Personalised Page Rank for label : ' + label)
         input_images = [str(item[0]) for item in input_image_label_pair if item[1] == label]
-        # gr, topic = work(graph, input_images)
-        # # graph = nx.convert_matrix.from_numpy_matrix(graph)
+        # l = work(gr_m, input_images, 0.85)
         output.append([label, pageRank(graph, input_images, beta = 0.85).tolist()])
+        # output.append([label, l])
+        # output[label] = l
 
-    # Assigning label to each image based on the highest Page Rank score value
-    image_labels = []   
-    for i in range(0, len(output[0][1])):
-        compare = []
-        for item in output:
-            compare.append([item[0], i, item[1][i]])
-        image_labels.append(sorted(compare, reverse=True, key=lambda x: x[2])[0])
+    final, check_label = labelling(output)
+    # final = label_m(output)
 
-    # Dataset with the correct label for all the datasets
     actual_labels = 'data/all_labels.xlsx'
     tr_labels = read_labels(actual_labels)
     index_img_dict = tr_labels[0]
-    index_img_dict = {str(x):str(y) for x,y in tr_labels[0].items()}
+    index_img_dict = {str(x):str(y) for x,y in tr_labels[0].items()} # Step to convert values to string type
 
-    # Grouping images for each labels
-    final_output = dict()
-    for elem in image_labels:
-        if elem[0] not in final_output:
-            final_output[elem[0]] = []
-        final_output[elem[0]].append(index_img_dict[str(elem[1])])
-    # print(final_output)
-    
-    with open('res_labels.json', 'w') as f:
-        f.write(json.dumps(final_output, indent = 2))
-
-    accuracy = acc_check(final_output, tr_labels)
+    accuracy = acc_check(final, check_label)
     print(accuracy)
 
 
