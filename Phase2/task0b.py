@@ -61,10 +61,7 @@ def generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary):
 
     for gesture_id in tf_vector_dictionary.keys():
         tf_vector = tf_vector_dictionary[gesture_id]
-        sum = 0
-        for x in tf_vector:
-            sum += x
-        tf_vector[:] = [x / sum for x in tf_vector]
+        tf_vector[:] = [x / len(tf_vector) for x in tf_vector]
         tf_vector_dictionary[gesture_id] = tuple(tf_vector)
     return tf_vector_dictionary
 
