@@ -6,7 +6,7 @@ Created on Thu Nov 12 22:52:18 2020
 """
 from Phase2 import task1
 import pandas as pd
-
+import numpy as np
 
 
 def read_labels(labels_dir):
@@ -40,32 +40,120 @@ def KNN(unlabeled_gestures, gestures):
     return predictions
 
 def split_data(gestures, all_labels, training_labels):
-    unlabeled_gestures = {}
-    labeled_gestures = gestures.copy()
+    labeled_gestures = {}
+    unlabeled_gestures = gestures.copy()
     for gesture_id in training_labels['id']:
-        unlabeled_gestures[gesture_id] = gestures[str(gesture_id)]
-        del labeled_gestures[str(gesture_id)]
+        labeled_gestures[gesture_id] = gestures[str(gesture_id)]
+        del unlabeled_gestures[str(gesture_id)]
     return unlabeled_gestures, labeled_gestures
 
 def make_shift_accuracy(predictions):
     correct = 0
     for truth, prediction in predictions.items():
-        if abs(truth - int(prediction)) < 100:
+        if abs(int(truth) - int(prediction)) < 100:
             correct += 1
     accuracy = correct / len(predictions)
     return accuracy
-        
-# def main(): 
-training_labels_dir = 'data/sample_training_labels.xlsx'
-all_labels_dir = 'data/all_labels.xlsx'
-training_labels = read_labels(training_labels_dir)
-all_labels = read_labels(all_labels_dir)
+    
 
-gestures = task1.calculate_pca(1, 4)[0]
-unlabeled_gestures, labeled_gestures = split_data(gestures, all_labels, training_labels)
-predictions = KNN(unlabeled_gestures, labeled_gestures)
-accuracy = make_shift_accuracy(predictions)
-print("KNN accuracy: ", accuracy)
 
+class Node:
+    def __init__(self, y_pred):
+        self.y_pred = y_pred
+        self.f_i = 0
+        self.threshold = 0
+        self.l = None
+        self.r = None
+    
+
+class DecisionTreeClassifier:
+    def __init__(self, max_depth=None):
+        self.max_depth = max_depth
+        self.y_count = 0
+        self.dimensionality = 0
+        self.root = None
+    
+    def fit(self, X, y):
+        self.y_count = len(set(y))
+        self.dimensionality = X.shape[1]
+        self.root = self.extend(X, y)
+    
+    def predict(self, X):
+        return [self.predict_single(inputs) for inputs in X]
+    
+    def get_split(self, X, y):
+        m = y.size
+        if m <= 1:
+            return None, None
+        num_parent = [np.sum(y == c) for c in range(self.y_count)]
+        best_gini = 1.0 - sum((n / m) ** 2 for n in num_parent)
+        best_idx, best_thr = None, None
+        for idx in range(self.dimensionality):
+            thresholds, classes = zip(*sorted(zip(X[:, idx], y)))
+            num_left = [0] * self.y_count
+            num_right = num_parent[:]
+            for i in range(1, m):
+                c = classes[i - 1]
+                num_left[c] = num_left[c] + 1
+                num_right[c] = num_right[c] - 1
+                gini_left = 1.0 - sum((num_left[x] / i) ** 2 for x in range(self.y_count))
+                gini_right = 1.0 - sum((num_right[x] / (m - i)) ** 2 for x in range(self.y_count))
+                gini = (i * gini_left + (m - i) * gini_right) / m
+                if thresholds[i] == thresholds[i - 1]:
+                    continue
+                if gini < best_gini:
+                    best_gini = gini
+                    best_idx = idx
+                    best_thr = (thresholds[i] + thresholds[i - 1]) / 2
+        return best_idx, best_thr
+    
+    def extend(self, X, y, depth=0):
+        y_pred = np.argmax([np.sum(y == i) for i in range(self.y_count)])
+        node = Node(y_pred=y_pred)
+        if depth < self.max_depth:
+            idx, thr = self.get_split(X, y)
+            if idx is not None:
+                indices_left = X[:, idx] < thr
+                X_left, y_left = X[indices_left], y[indices_left]
+                X_right, y_right = X[~indices_left], y[~indices_left]
+                node.f_i = idx
+                node.threshold = thr
+                node.l = self.extend(X_left, y_left, depth + 1)
+                node.r = self.extend(X_right, y_right, depth + 1)
+        return node
+    
+    def predict_single(self, x):
+        node = self.root
+        while node.l:
+            node = node.l if x[node.f_i] < node.threshold else node.r
+        return node.y_pred
+
+
+def main(): 
+    training_labels_dir = 'data/sample_training_labels.xlsx'
+    all_labels_dir = 'data/all_labels.xlsx'
+    training_labels = read_labels(training_labels_dir)
+    all_labels = read_labels(all_labels_dir)
+    test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])]
+    
+    training_labels['label'] = training_labels['label'].astype('category')
+    training_labels['label_code'] = training_labels['label'].cat.codes
+    
+    test_labels['label'] = test_labels['label'].astype('category') # TODO: Label according to training data
+    test_labels['label_code'] = test_labels['label'].cat.codes
+    
+    gestures = task1.calculate_pca(1, 4)[0]
+    unlabeled_gestures, labeled_gestures = split_data(gestures, all_labels, training_labels)
+    X_train, X_test, y_train, y_test = pd.DataFrame(labeled_gestures.values()).to_numpy(), pd.DataFrame(unlabeled_gestures.values()).to_numpy(),training_labels['label_code'].to_numpy(),test_labels['label_code'].to_numpy()
+    
+    predictions = KNN(unlabeled_gestures, labeled_gestures)
+    accuracy = make_shift_accuracy(predictions)
+    print("KNN accuracy: ", accuracy)
+
+    clf = DecisionTreeClassifier(max_depth=2)
+    clf.fit(X_train, y_train)
+    y_pred_test = clf.predict(X_test)
+    print("Decision Tree accuracy: ", float(sum([1 if _y == _y_pred else 0 for _y, _y_pred in zip(y_pred_test, y_test)])) / len(y_pred_test))
+    
 # if __name__ == '__main__':
-#     main()
+    # main()
