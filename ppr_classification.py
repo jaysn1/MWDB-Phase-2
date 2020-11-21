@@ -167,7 +167,9 @@ def classifier(graph, labels, input_image_label_pair, actual_labels):
     index_img_dict = {str(x):str(y) for x,y in tr_labels[0].items()} # Step to convert values to string type
 
     accuracy = acc_check(final, check_label)
-    print("Accuracy: " + str(accuracy))
+    
+    return accuracy
+    
 
 
 def main():
