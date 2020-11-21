@@ -158,7 +158,12 @@ def main():
     print("Decision Tree accuracy: ", float(sum([1 if _y == _y_pred else 0 for _y, _y_pred in zip(y_pred_test, y_test)])) / len(y_pred_test))
 
     # Code to call PPR classifier
-    data = task1_initial_setup(1, 0, False)
+    # inp = int(input("Do you want to create vector model for gestures (0/1)?: "))
+    user_option = int(input("\n1:DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n 6: ED \n7: DTW\nWhat to use for gesture gesture matrix? "))
+    if user_option not in [6,7]:
+        vector_model = int(input("What vector model to use (TF: 0, TF-IDF:1)?: "))
+
+    data = task1_initial_setup(user_option, vector_model, False)
     graph = pd.DataFrame.from_dict(data).values
 
     labels = set()
@@ -180,5 +185,5 @@ def main():
 
     print("Personalised PageRank Classifier accuracy: " + str(accuracy))
     
-# if __name__ == '__main__':
-    # main()
+if __name__ == '__main__':
+     main()
