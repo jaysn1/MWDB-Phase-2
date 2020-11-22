@@ -73,9 +73,10 @@ def main():
     for m in range(10):
         relevent_gestures = list(map(lambda x: x.strip(), input("Relevent (comma seperated): ").split(","))) # ['1', '22', '20', '31', '2', '4', '6']
         relevent.update(relevent_gestures)
-        relevent_gestures = list(relevent)
+        # relevent_gestures = list(relevent)
         # not_relevent_gestures= list(map(lambda x: x.strip(), input("Not - Relevent (comma seperated): ").split(","))) #['262']
-        not_relevent_gestures = list(res.difference(set(relevent)))
+        # not_relevent_gestures = list(res.difference(set(relevent)))
+        not_relevent_gestures = list(set(results).difference(set(relevent_gestures)))
         not_relevent.update(not_relevent_gestures)
 
         not_relevent = not_relevent.difference(relevent)
@@ -120,23 +121,30 @@ def main():
             l = len(relevent_documents)*np.ones(l.shape) - l
             k = np.divide(l, len(relevent_documents))
             for i in range(len(query_document)):
-                if query_document[i] != 0:
+                if query_document[i] == 0:
                     r0[i] = (l[i] + 0.5) / (L + 1)
                     n0[i] = (k[i]-l[i]+0.5 )/(K+L+1)
 
         sim = []
         for document in documents:
-            c1, c0 = 0, 0
+            c1, c0, cd, count0, count1, countd = 0, 0, 0, 0, 0, 0
             for i in range(len(query_document)):
                 if document[i]==1 and query_document[i]==1:
-                    # if (r[i]*(1-n[i])) / (n[i] * (1-r[i])) == 0:
-                    #     print(i)
+                    # if n[i]==0 or r[i]==1:
+                    #     print(i, end=" | ")
                     c1 += (r[i]*(1-n[i])) / (n[i] * (1-r[i]))
+                    count1 += 1
                 elif document[i]==0 and query_document[i]==0:
-                    # if (r[i]*(1-n[i])) / (n[i] * (1-r[i])) == 0:
-                    #     print(i)
+                    # if n0[i]==0 or r0[i]==1:
+                    #     print(i, end=" | ")
                     c0 += (r0[i]*(1-n0[i])) / (n0[i] * (1-r0[i]))
-            c = ((list(document).count(0)*c0) + (list(document).count(1)*c1))/len(document)
+                    count0 += 1
+                else:
+                    cd += (n[i]) / (r[i])
+                    countd += 1
+
+            c = ((count0*c0)+(count1*c1)-(countd*cd)) / len(document)
+            c = c1 
             sim.append(c)
         # print(sim)
         results = list(set([_[1] for _ in sorted(enumerate(gestures), key=lambda x: -sim[x[0]]) ][:15]))

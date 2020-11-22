@@ -91,7 +91,8 @@ def main():
     input_vector_dimension = len(vectors[gestures[0]][0])
     lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension)
     lsh.index(vectors)
-    lsh.query(point=vectors['63'][0], t=15, vectors=vectors)
+    lsh.query(point=vectors['1'][0], t=15, vectors=vectors)
+    print(len(vectors[gestures[0]][0]))
 
 if __name__=="__main__":
     main()
