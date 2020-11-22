@@ -4,6 +4,7 @@ driver program for phase3
 author: Monil
 """
 import task1
+import task2
 
 def main():
     print("""\n
@@ -44,6 +45,7 @@ def main():
         
 
     elif task==2:
+        task2.main()
         pass
     elif task==3:
         pass

@@ -185,5 +185,3 @@ def main():
 
     print("Personalised PageRank Classifier accuracy: " + str(accuracy))
     
-if __name__ == '__main__':
-     main()
