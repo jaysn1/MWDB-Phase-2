@@ -64,10 +64,10 @@ class LSH:
         results.sort(key = lambda x: x[1])
         if t < len(results):
             results = results[0:t]
-        print("Number of buckets searched: " + str(num_buckets_searched))
-        print("Number of candidates considered: " + str(len(potential_candidates)))
-        print("Results: " + str(results))
-    
+        # print("Number of buckets searched: " + str(num_buckets_searched))
+        # print("Number of candidates considered: " + str(len(potential_candidates)))
+        # print("Results: " + str(results))
+        return results
     """
     Euclidean distance
     """
