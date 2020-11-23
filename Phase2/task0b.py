@@ -28,11 +28,23 @@ def deserialize_data_parameters(file_name):
 # in the vector representations
 def generate_word_position_dictionary(list_of_all_words):
     word_position_dictionary = {}
+    component_position_dictionary = {}
+    sensor_position_dictionary = {}
     k=0
     for word in list_of_all_words:
+        component_id = word[0]
+        sensor_id = word[1]
         word_position_dictionary[str(word)] = k
+        if component_id not in component_position_dictionary:
+            component_position_dictionary[component_id] = [k]
+        else:
+            component_position_dictionary[component_id].append(k)
+        if sensor_id not in sensor_position_dictionary:
+            sensor_position_dictionary[sensor_id] = [k]
+        else:
+            sensor_position_dictionary[sensor_id].append(k)
         k += 1
-    return word_position_dictionary
+    return word_position_dictionary, component_position_dictionary, sensor_position_dictionary
 
 # Generate set of all words in the database
 def get_set_of_words_across_the_database(word_vector_dict):
@@ -127,6 +139,14 @@ def serialize_word_position_dictionary(word_position_dictionary):
     with open("intermediate/word_position_dictionary.json", "w") as write_file:
         json.dump(word_position_dictionary, write_file)
 
+def serialize_component_position_dictionary(component_position_dictionary):
+    with open("intermediate/component_position_dictionary.json", "w") as write_file:
+        json.dump(component_position_dictionary, write_file)
+
+def serialize_sensor_position_dictionary(sensor_position_dictionary):
+    with open("intermediate/sensor_position_dictionary.json", "w") as write_file:
+        json.dump(sensor_position_dictionary, write_file)
+
 def generate_vectors():
     print("Deserializing objects from previous tasks...")
     # file_name = "intermediate/word_avg_dict.json"
@@ -140,7 +160,7 @@ def generate_vectors():
     set_of_all_words = get_set_of_words_across_the_database(word_vector_dict)
     # Convert set of all words to list
     list_of_all_words = list(set_of_all_words)
-    word_position_dictionary = generate_word_position_dictionary(list_of_all_words)
+    word_position_dictionary, component_position_dictionary, sensor_position_dictionary = generate_word_position_dictionary(list_of_all_words)
     tf_vector_dictionary = generate_tf_vector_dictionary(word_vector_dict, word_position_dictionary)
     idf_vector = generate_idf_vector(word_vector_dict, word_position_dictionary)
 
@@ -153,6 +173,8 @@ def generate_vectors():
     print("Serializing objects needed for future tasks...")
     serialize_vectors_dictionary(vectors_dictionary)
     serialize_word_position_dictionary(word_position_dictionary)
+    serialize_component_position_dictionary(component_position_dictionary)
+    serialize_sensor_position_dictionary(sensor_position_dictionary)
 
 def main():
     # task0a.create_output_directories()
