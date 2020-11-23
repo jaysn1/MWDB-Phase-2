@@ -62,17 +62,19 @@ class LSH:
         ignoring_last_bits = 0
         set_of_binary_hashes = set()
         while(len(potential_candidates) < t):
+            if ignoring_last_bits>1:
+                print("Ignoring last " + str(ignoring_last_bits) + " bits...")
             # generate permuation of last bits
             extra_binary_bits = ["".join(seq) for seq in itertools.product("01", repeat=ignoring_last_bits)]
             for i in range(self.num_layers):
                 # hash the data point
                 binary_hash = self._hash(i, point)
-                set_of_binary_hashes.update(binary_hash)
+                set_of_binary_hashes.add(binary_hash)
                 potential_candidates.update(self.layertables[i].get_list(binary_hash))
                 # iterate through all the permuations
                 for binary_bits in extra_binary_bits:
                     hash_value = binary_hash[0:-ignoring_last_bits] + binary_bits
-                    set_of_binary_hashes.update(hash_value)
+                    set_of_binary_hashes.add(hash_value)
                     potential_candidates.update(self.layertables[i].get_list(hash_value))
             ignoring_last_bits += 1
 

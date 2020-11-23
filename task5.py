@@ -116,7 +116,7 @@ def main():
     gestures = list(vectors.keys())
     input_vector_dimension = len(vectors[gestures[0]][0])
 
-    lsh = LSH(num_layers=4, num_hash_per_layer=20, input_dimension=input_vector_dimension, is_similarity_matrix=False)
+    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_similarity_matrix=False)
     lsh.index(vectors)
     lsh.query(point=vectors['1'][0], t=15, vectors=vectors)
 
