@@ -31,9 +31,6 @@ def relevence_feedback_vector_space(relevent_gestures, not_relevent_gestures, qu
     return query
     ########################################################################
 
-def relevence_feedback_vector_space(relevent_gestures, not_relevent_gestures, query):
-    pass
-
 
 def main():
     """
@@ -143,8 +140,8 @@ def main():
                     cd += (n[i]) / (r[i])
                     countd += 1
 
-            c = ((count0*c0)+(count1*c1)-(countd*cd)) / len(document)
-            c = c1 
+            c = ((count0*c0)+(count1*c1)) / len(document)
+            # c = c1 
             sim.append(c)
         # print(sim)
         results = list(set([_[1] for _ in sorted(enumerate(gestures), key=lambda x: -sim[x[0]]) ][:15]))
