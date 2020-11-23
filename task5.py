@@ -92,13 +92,15 @@ def perform_relevance_feeback(vectors, relevant_gestures, irrelevant_gestures):
     irrelevant_gestures_ids = retrieve_gesture_ids(irrelevant_gestures, gestures, input_vector_dimension)
 
     word_weight_dict = dict()
-    print("Running PPR on graph with relevant gestures as seed...")
-    pgr_output = pageRank(adjacency_graph, relevant_gesture_ids, beta = 0.9)
-    process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
+    if len(relevant_gesture_ids) > 0:
+        print("Running PPR on graph with relevant gestures as seed...")
+        pgr_output = pageRank(adjacency_graph, relevant_gesture_ids, beta = 0.9)
+        process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
 
-    print("Running PPR on graph with irrelevant gestures as seed...")
-    pgr_output = pageRank(adjacency_graph, irrelevant_gestures_ids, beta = 0.9)
-    process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
+    if len(irrelevant_gestures_ids) > 0:
+        print("Running PPR on graph with irrelevant gestures as seed...")
+        pgr_output = pageRank(adjacency_graph, irrelevant_gestures_ids, beta = 0.9)
+        process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
 
     modified_query_vector = vectors['1'][0]
     for k,v in word_weight_dict.items():
@@ -109,19 +111,17 @@ def perform_relevance_feeback(vectors, relevant_gestures, irrelevant_gestures):
     return modified_query_vector
 
 def main():
-
     file_name = "Phase2/intermediate/vectors_dictionary.json"
     vectors = deserialize_vector_file(file_name)
     gestures = list(vectors.keys())
     input_vector_dimension = len(vectors[gestures[0]][0])
-    print(input_vector_dimension)
 
     lsh = LSH(num_layers=4, num_hash_per_layer=20, input_dimension=input_vector_dimension, is_similarity_matrix=False)
     lsh.index(vectors)
     lsh.query(point=vectors['1'][0], t=15, vectors=vectors)
 
-    irrelevant_gestures = ['559', '566', '577', '567']
     relevant_gestures = ['1', '30', '9', '11']
+    irrelevant_gestures = ['559', '566', '577', '567']
 
     modified_query_vector = perform_relevance_feeback(vectors, relevant_gestures=relevant_gestures, irrelevant_gestures=irrelevant_gestures)
 
