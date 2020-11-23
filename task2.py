@@ -5,6 +5,8 @@ Created on Thu Nov 12 22:52:18 2020
 @author: Jaysn
 """
 from Phase2 import task1
+from task1 import task1_initial_setup
+from ppr_classification import classifier, read_files
 import pandas as pd
 import numpy as np
 
@@ -154,6 +156,32 @@ def main():
     clf.fit(X_train, y_train)
     y_pred_test = clf.predict(X_test)
     print("Decision Tree accuracy: ", float(sum([1 if _y == _y_pred else 0 for _y, _y_pred in zip(y_pred_test, y_test)])) / len(y_pred_test))
+
+    # Code to call PPR classifier
+    # inp = int(input("Do you want to create vector model for gestures (0/1)?: "))
+    user_option = int(input("\n1:DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n 6: ED \n7: DTW\nWhat to use for gesture gesture matrix? "))
+    if user_option not in [6,7]:
+        vector_model = int(input("What vector model to use (TF: 0, TF-IDF:1)?: "))
+
+    data = task1_initial_setup(user_option, vector_model, False)
+    graph = pd.DataFrame.from_dict(data).values
+
+    labels = set()
+
+    # Labelled dataset for training
+    input_image_label_pair = []
+    tr_labels = read_files(training_labels_dir)
+    d = {}
+    for i in tr_labels[0]:
+        d[tr_labels[0][i]] = str(tr_labels[1][i])
+
+    for line in d:
+        image_id = str(line)
+        label = d[line]
+        labels.add(label)
+        input_image_label_pair.append([image_id, label])
+
+    accuracy = classifier(graph, labels, input_image_label_pair, all_labels_dir)
+
+    print("Personalised PageRank Classifier accuracy: " + str(accuracy))
     
-# if __name__ == '__main__':
-    # main()
