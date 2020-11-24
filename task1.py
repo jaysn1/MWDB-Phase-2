@@ -205,7 +205,7 @@ def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
             gesture_gesture_similarity = pickle.load(read_file)
     return gesture_gesture_similarity
 
-def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
+def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
     """
     input: k, m, (gestures to create gesture-gesture matrix), n seed nodes
     output: top m most dominant gestures in the g-g matrix
@@ -270,10 +270,10 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
 
 if __name__=="__main__":
 
-    gesture_gesture_similarity = task1_initial_setup(1, 0, False)
-    viz = True
+    gesture_gesture_similarity = task1_initial_setup(2, 0, False)
+    viz = False
 
-    k, m = 4, 3
+    k, m = 10, 5
     seed_nodes = ["1", "2", "3", "4"]
     dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, viz=viz, _edge_labels = False)
     print(dominant_gestures)

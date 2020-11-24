@@ -3,6 +3,7 @@ driver program for phase3
 
 author: Monil
 """
+from RelevanceFeedbackSystemNBModel import ProbabilityFeedbackNBModel
 import task1
 import task2
 
@@ -50,7 +51,18 @@ def main():
     elif task==3:
         pass
     elif task==4:
-        pass
+        vector_model = int(input("Which vector model to use(0: TF, 1: TF-IDF): "))
+        obj = ProbabilityFeedbackNBModel(vector_model=vector_model, num_layers=4, num_hash_per_layer=5)
+        print("\nInitial Results: ", [_[0] for _ in obj.initial_query(input("Query: "))])
+        
+        while(True):  # Until user is satisfied or we do not have anymore results to show
+            relevent_ids = list(map(lambda x:x.strip(), input("relevent: ").split(",")))
+            notrelevent_ids = list(map(lambda x:x.strip(), input("Not-relevent: ").split(",")))
+            results = obj.iteration(relevent_ids, notrelevent_ids)
+            print("\nResults: ", [_[0] for _ in results])
+            if not input("More results?(y/n)").strip() in ['y', 'Y']:
+                break
+
     elif task==5:
         pass
     elif task==6:
