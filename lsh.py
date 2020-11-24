@@ -25,13 +25,14 @@ class LSH:
     """
     Constructor for LSH
     """
-    def __init__(self, num_layers, num_hash_per_layer, input_dimension, is_similarity_matrix):
+    def __init__(self, num_layers, num_hash_per_layer, input_dimension, is_vector_matrix, vector_model=0):
         self.num_layers = num_layers
         self.num_hash_per_layer = num_hash_per_layer
         self.input_dimension = input_dimension
         self.uniform_hyperplanes = [np.random.randn(self.num_hash_per_layer, self.input_dimension) for i in range(self.num_layers)]
         self.layertables = [self.LayerTable() for i in range(self.num_layers)]
-        self.is_similarity_matrix = is_similarity_matrix
+        self.is_vector_matrix = is_vector_matrix
+        self.vector_model = vector_model
     
     """
     Hash data point
@@ -47,8 +48,8 @@ class LSH:
     def index(self, vectors):
         for k,v in vectors.items():
             for i in range(self.num_layers):
-                if self.is_similarity_matrix == False:
-                    self.layertables[i].append_val(self._hash(i, v[0]), k)
+                if self.is_vector_matrix == True:
+                    self.layertables[i].append_val(self._hash(i, v[self.vector_model]), k)
                 else:
                     self.layertables[i].append_val(self._hash(i, v), k)
         return
@@ -82,7 +83,7 @@ class LSH:
     
         results = []
         for candidate in potential_candidates:
-            results.append((candidate, self.calculate_l2_distance(vectors[candidate][0], point)))
+            results.append((candidate, self.calculate_l2_distance(vectors[candidate][self.vector_model], point)))
         results.sort(key = lambda x: x[1])
         if t < len(results):
             results = results[0:t]
@@ -109,12 +110,12 @@ def deserialize_vector_file(file_name):
 def main():
     file_name = "Phase2/intermediate/vectors_dictionary.json"
     vectors = deserialize_vector_file(file_name)
-
     gestures = list(vectors.keys())
-    input_vector_dimension = len(vectors[gestures[0]][0])
-    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension)
+    vector_model = 0
+    input_vector_dimension = len(vectors[gestures[0]][vector_model])
+    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_vector_matrix=True, vector_model=0)
     lsh.index(vectors)
-    lsh.query(point=vectors['63'][0], t=15, vectors=vectors)
+    lsh.query(point=vectors['1'][0], t=15, vectors=vectors)
 
 if __name__=="__main__":
     main()
