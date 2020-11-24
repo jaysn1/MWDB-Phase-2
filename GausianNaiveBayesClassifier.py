@@ -58,7 +58,6 @@ class GaussianNaiveBayesClf:
             if stds0[i]==0 or stds1[i]==0:
                 continue
             else:
-                # point = self.solve(means0[i], means1[i], stds0[i], stds1[i])
                 area_0, area_1 = self.calculate_area(means0[i], means1[i], stds0[i], stds1[i], i)
                 if means0[i] < means1[i]:
                     self.imp[i] = area_1 / (area_0 + area_1)
@@ -97,7 +96,7 @@ class GaussianNaiveBayesClf:
         a0, a1 = 0,0
         for i in range(self.X.shape[0]):
             class_prob0 = class_prob[0] + math.log(self.calculate_probability(self.X[i, ind], mean0, std0, 0), math.e)
-            class_prob1 = class_prob[1] + math.log(self.calculate_probability(self.X[i, ind], mean1, std1, 0), math.e)
+            class_prob1 = class_prob[1] + math.log(self.calculate_probability(self.X[i, ind], mean1, std1, 1), math.e)
 
             if class_prob0 > class_prob1:
                 a0 += 1
@@ -112,7 +111,10 @@ class GaussianNaiveBayesClf:
         if stdev == 0:
             return math.e
         exponent = math.exp(-((x - mean) ** 2 / (2 * stdev ** 2)))    
-        return (1 / (math.sqrt(2 * math.pi) * stdev)) * exponent
+        prob = (1 / (math.sqrt(2 * math.pi) * stdev)) * exponent
+        if prob==0:
+            return math.e
+        return prob
 
     def predict_proba(self, X):
         ''' This function predicts the probability for every class '''

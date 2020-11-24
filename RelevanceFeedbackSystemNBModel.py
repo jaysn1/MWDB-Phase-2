@@ -19,7 +19,8 @@ class ProbabilityFeedbackNBModel():
         self.word_position_dict = {}
         with open(word_pos_dict_dir) as f:
             for k,v in json.load(f).items():
-                self.word_position_dict[ v ] = eval(k)
+                k = eval(k)
+                self.word_position_dict[v] = tuple([k[0]] + [k[1]] + list(k[2]))
 
         file_name = "intermediate/vectors_dictionary.json"
         self.vectors = deserialize_vector_file(file_name)
@@ -39,16 +40,16 @@ class ProbabilityFeedbackNBModel():
         return results
 
     def make_data(self, relevent_ids, irrevelvent_ids):
-        # similarity_dict = Phase3task1.task1_initial_setup(2, self.vector_model, create_vectors=False)
+        similarity_dict = Phase3task1.task1_initial_setup(2, self.vector_model, create_vectors=False)
         
         train_relevent = []
-        # for relevent in relevent_ids:
-        #     train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
+        for relevent in relevent_ids:
+            train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
         train_relevent.extend(relevent_ids)
 
         train_irrelevent = []
-        # for irrelevent in irrevelvent_ids:
-        #     train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
+        for irrelevent in irrevelvent_ids:
+            train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
         train_irrelevent.extend(irrevelvent_ids)
 
         train_irrelevent = [i for i in train_irrelevent if i not in train_relevent]
@@ -67,7 +68,11 @@ class ProbabilityFeedbackNBModel():
         # clf.fit(np.array(x_train), np.array(y_train))
         # clf = GausianNaiveBayesClassifier(x_train, y_train)
         clf = GaussianNaiveBayesClf(x_train, y_train)
-        print(clf.imp)
+        print("Relative importance highest 10: ")
+        rel_imp = [(self.word_position_dict[i],_) for i,_ in sorted(enumerate(clf.imp), key=lambda x :x[1] ,reverse=True)]
+        print(rel_imp[:10])
+        print("Relative importance lowest 10: ")
+        print(rel_imp[-10:])
 
         y_pred = clf.predict([self.vectors[gesture][self.vector_model] for gesture in self.vectors])
         self.vectors = {gesture: self.vectors[gesture] for i,gesture in enumerate(self.vectors) if y_pred[i] == 1}
