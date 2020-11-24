@@ -70,34 +70,32 @@ def edit_distance_thread(p_vectors, vectors, components, sensors, mega_data_stor
         thread_gestures[gesture_id] = gesture_similarity
     return thread_gestures
 
-# personalize / topic specific page rank : https://www.youtube.com/watch?v=FFNAJUBEfHs
-# ref: https://gist.github.com/pj4dev/f636cf54ef9a9d1fd92368f1ef4a3f46
-def pagerank(graph, beta, topic, maxiter = 1000):
-    matrix = np.zeros((len(graph.nodes), len(graph.nodes)))
-    for node in graph.nodes:
-        neighbors = list(graph.neighbors(node))
-        for neighbour in neighbors:
-            matrix[neighbour][node] += beta * 1/len(neighbors)   
+# Different PPR Code for classification
+def pageRank(graph, seed_gestures, beta=0.85, epsilon=0.000001):
+    nodes = len(graph)
 
-    for node in topic:
-        neighbours = graph.neighbors(node)
-        for neighbour in neighbors:
-            matrix[neighbour][node] += (1-beta) * 1/len(topic)
+    # # Keeping record of index and gestures IDs (Since gesture ID values may not be in order)
+    M = graph / np.sum(graph, axis=0)
 
-    y = (np.ones((1, len(graph))) * 1.0/len(graph.nodes)).T
-    
-    count = 0
-    i = y.copy()
-    while(count <= maxiter):
-        tmp = np.matmul(matrix, i)
-        if all(tmp == i):
+    # Initializing Teleportation matrix and Page Rank Scores with Zeros for all images
+    teleportation_matrix = np.zeros(nodes)
+    pageRankScores = np.zeros(nodes)
+
+    # Updating Teleportation and Page Rank Score Matrices with 1/num_of_input images for the input images.
+    for image_id in seed_gestures:
+        teleportation_matrix[image_id] = 1 / len(seed_gestures)
+        pageRankScores[image_id] = 1 / len(seed_gestures)
+
+    # Calculating Page Rank Scores
+    while True:
+        oldPageRankScores = pageRankScores
+        pageRankScores = (beta * np.dot(M, pageRankScores)) + ((1 - beta) * teleportation_matrix)
+        if np.linalg.norm(pageRankScores - oldPageRankScores) < epsilon:
             break
-        else:
-            i = tmp
-        i = tmp
-        count += 1
-    
-    return i
+
+    # Normalizing & Returning Page Rank Scores
+    return pageRankScores / sum(pageRankScores)
+
 
 def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
     """
@@ -220,22 +218,17 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
     G = {}
     for node in gesture_gesture_matrix:
         G[node] = [_[0] for _ in sorted(gesture_gesture_matrix[node].items(), key=lambda x: x[1], reverse=True)][:k]
+
     node_map = {node:i for i,node in enumerate(G.keys())}
     node_inv_map = {i:node for i,node in enumerate(G.keys())}
-
-    graph = {}
-    for k in G.keys():
-        graph[node_map[k]] = []
-        for neighbour in G[k]:
-            graph[node_map[k]].append(node_map[neighbour])
-
+    
     topic = [node_map[_] for _ in seed_nodes]
-    G = np.zeros((len(graph), len(graph)))
-    for node, neighbours in graph.items():
-        for neighbour in neighbours:
-            G[node][neighbour] = 1
-    graph = nx.convert_matrix.from_numpy_matrix(G)
-    pr = pagerank(graph, beta, topic)
+    graph = np.zeros((len(G), len(G)))
+    for k in G.keys():
+        for neighbour in G[k]:
+            graph[node_map[k], node_map[k]] = 1
+
+    pr = pageRank(graph, topic, beta)
 
     # graph = nx.relabel_nodes(graph, node_inv_map, copy=True)
     # pos=nx.spring_layout(graph)
