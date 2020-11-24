@@ -83,11 +83,14 @@ class LSH:
     
         results = []
         for candidate in potential_candidates:
-            results.append((candidate, self.calculate_l2_distance(vectors[candidate][self.vector_model], point)))
+            if self.is_vector_matrix == True:
+                results.append((candidate, self.calculate_l2_distance(vectors[candidate][self.vector_model], point)))
+            else:
+                results.append((candidate, self.calculate_l2_distance(vectors[candidate], point)))
         results.sort(key = lambda x: x[1])
         if t < len(results):
             results = results[0:t]
-        print("Number of buckets searched: " + str(num_buckets_searched))
+        print("\nNumber of buckets searched: " + str(num_buckets_searched))
         print("Number of candidates considered: " + str(len(potential_candidates)))
         print("Results: " + str(results))
         return results
@@ -108,14 +111,25 @@ def deserialize_vector_file(file_name):
     return vector
 
 def main():
-    file_name = "Phase2/intermediate/vectors_dictionary.json"
+    file_name = "Phase2/intermediate/SVD_gesture_gesture_similarity_dictionary.json"
+    print("Task-3")
+    ges_no = input("Enter the query gesture: ")
+    num_layers = input("Enter the number of layers: ")
+    num_hash_per_layer = input("Enter the number of hashes per layer: ")
+    num_res = input("Enter the number of results to show: ")
+
     vectors = deserialize_vector_file(file_name)
-    gestures = list(vectors.keys())
     vector_model = 0
-    input_vector_dimension = len(vectors[gestures[0]][vector_model])
-    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_vector_matrix=True, vector_model=0)
-    lsh.index(vectors)
-    lsh.query(point=vectors['1'][0], t=15, vectors=vectors)
+    input_vector_dimension = len(vectors[ges_no])
+
+    similarity_matrix = {}
+    for k,v in vectors.items():
+        row = list(v.values())
+        similarity_matrix[k] = row
+
+    lsh = LSH(num_layers=int(num_layers), num_hash_per_layer=int(num_hash_per_layer), input_dimension=input_vector_dimension, is_vector_matrix=False, vector_model=vector_model)
+    lsh.index(similarity_matrix)
+    lsh.query(point=similarity_matrix[ges_no], t=int(num_res), vectors=similarity_matrix)
 
 if __name__=="__main__":
     main()

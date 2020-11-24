@@ -75,7 +75,7 @@ def task5(ges_no, num_layers, num_hash_per_layer, num_res, vectors,
   relevant_gestures = relevent['Relevent']
   irrelevant_gestures = irrelevent['Irrelevent']
 
-  modified_query_vector = perform_relevance_feeback(query_gesture=ges_no, vectors=vectors, relevant_gestures=relevant_gestures, irrelevant_gestures=irrelevant_gestures, word_position_dictionary=word_position_dictionary,
+  modified_query_vector = perform_relevance_feeback(query_gesture=ges_no, vectors=vectors, vector_model=vector_model, relevant_gestures=relevant_gestures, irrelevant_gestures=irrelevant_gestures, word_position_dictionary=word_position_dictionary,
      component_position_dictionary=component_position_dictionary, sensor_position_dictionary=sensor_position_dictionary)
 
   lsh.query(point=modified_query_vector, t=int(num_res), vectors=vectors)
@@ -86,11 +86,11 @@ def task4(ges_no, num_layers, num_hash_per_layer, num_res, vectors,
 
 def main():
   print("Enter the query parameters as input:")
-  ges_no = input("Enter the number of the query gesture: ")
+  ges_no = input("Enter the query gesture: ")
   num_layers = input("Enter the number of layers: ")
   num_hash_per_layer = input("Enter the number of hashes per layer: ")
   num_res = input("Enter the number of results to show: ")
-  task_choice = input("1) Task 4 2) Task 5\n Enter the choice: ")
+  task_choice = input("1)Task-4\n2)Task-5\n Enter the choice: ")
 
   vectors_file_name = "Phase2/intermediate/vectors_dictionary.json"
   word_position_dictionary_file_name = "Phase2/intermediate/word_position_dictionary.json"

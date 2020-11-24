@@ -177,10 +177,8 @@ def process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dic
                 word_weight_dict[node[0]] = word_weight_dict[node[0]] - ((node[1]/contribution_of_words)*100)
     return word_weight_dict
 
-def perform_relevance_feeback(query_gesture, vectors, relevant_gestures, irrelevant_gestures, word_position_dictionary, component_position_dictionary, sensor_position_dictionary):
+def perform_relevance_feeback(query_gesture, vectors, vector_model, relevant_gestures, irrelevant_gestures, word_position_dictionary, component_position_dictionary, sensor_position_dictionary):
     gestures = list(vectors.keys())
-    input_vector_dimension = -1
-    adjacency_graph = []
     # if choose_relative_importance_type == 0:
     input_vector_dimension = len(vectors[gestures[0]][0])
     adjacency_graph = create_adjacency_graph_for_words(vectors, gestures, input_vector_dimension)
@@ -224,7 +222,7 @@ def perform_relevance_feeback(query_gesture, vectors, relevant_gestures, irrelev
         for position in positions:
             position_to_sensor_dictionary[position] = sensor
 
-    modified_query_vector = vectors[query_gesture][0]
+    modified_query_vector = vectors[query_gesture][vector_model]
     word_weight_list = [(0,0)]*input_vector_dimension
     component_weight_list = [(0,0)]*4
     sensor_weight_list = [(0,0)]*20
@@ -270,19 +268,19 @@ def main():
     sensor_position_dictionary = deserialize_sensor_position_dictionary(sensor_position_dictionary_file_name)
     
     query_gesture='1'
-    vectors_model=0
+    vector_model=0
 
     gestures = list(vectors.keys())
-    input_vector_dimension = len(vectors[gestures[0]][vectors_model])
+    input_vector_dimension = len(vectors[gestures[0]][vector_model])
 
-    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_vector_matrix=True, vector_model=vectors_model)
+    lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_vector_matrix=True, vector_model=vector_model)
     lsh.index(vectors)
-    lsh.query(point=vectors[query_gesture][vectors_model], t=15, vectors=vectors)
+    lsh.query(point=vectors[query_gesture][vector_model], t=15, vectors=vectors)
 
     relevant_gestures = ['1', '30', '9', '11']
     irrelevant_gestures = ['559', '566', '577', '567']
 
-    modified_query_vector = perform_relevance_feeback(query_gesture, vectors, relevant_gestures=relevant_gestures, irrelevant_gestures=irrelevant_gestures, word_position_dictionary=word_position_dictionary,
+    modified_query_vector = perform_relevance_feeback(query_gesture, vectors, vector_model=vector_model, relevant_gestures=relevant_gestures, irrelevant_gestures=irrelevant_gestures, word_position_dictionary=word_position_dictionary,
      component_position_dictionary=component_position_dictionary, sensor_position_dictionary=sensor_position_dictionary)
 
     lsh.query(point=modified_query_vector, t=15, vectors=vectors)
