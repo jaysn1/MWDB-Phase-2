@@ -89,12 +89,12 @@ class PrababilityFeedbackModel():
         weight = []
         for i in range(len(query_document)):
             if (self.n1[i])==0:
-                p1 = 0
+                p1 = 1
             else:
                 p1 = self.r1[i]*(1-self.n1[i]) / (self.n1[i] * (1-self.r1[i]))
 
             if (self.n2[i])==0:
-                p2 = 0
+                p2 = 1
             else:
                 p2 = self.r2[i]*(1-self.n2[i]) / (self.n2[i] * (1-self.r2[i]))
             
@@ -104,18 +104,19 @@ class PrababilityFeedbackModel():
                 weight.append(-p1)
 
         sw = len(weight)
-        weight = [self.query[i]*_ for i,_ in enumerate(weight)]
+        updated_query = [self.query[i]*_ for i,_ in enumerate(weight)]
         # weight = helper.min_max_scaler([weight], feature_range=(min(self.query), max(self.query)))[0]
         # print("Query: ", [(i,_) for i,_ in enumerate(self.query) if _!=0 ][:10])
         # print("Updated query: ", [(i,_) for i,_ in enumerate(weight) if _!=0 ][:10])
         # self.query = weight
-        results = self.lsh.query(point=weight, t=t, vectors=self.vectors)
+        results = self.lsh.query(point=updated_query, t=t, vectors=self.vectors)
         return results
 
 if __name__ == '__main__':
     vector_model = 0
     obj = PrababilityFeedbackModel(vector_model=0, num_layers=4, num_hash_per_layer=5)
     print("\ninitial Results: ", [_[0] for _ in obj.initial_query(input("Query: "))])
+    
     for i in range(4):
         relevent_ids = list(map(lambda x:x.strip(), input("relevent: ").split(",")))
         notrelevent_ids = list(map(lambda x:x.strip(), input("Not-relevent: ").split(",")))
