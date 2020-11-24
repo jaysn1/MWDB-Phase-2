@@ -169,16 +169,21 @@ def process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dic
 
     for node in result:
         if node[0] < input_vector_dimension:
-            if node[0] not in word_weight_dict:
-                word_weight_dict[node[0]] = (node[1]/contribution_of_words)*100
-            else:
-                word_weight_dict[node[0]] = word_weight_dict[node[0]] - ((node[1]/contribution_of_words)*100)
+            word_weight_dict[node[0]] = (node[1]/contribution_of_words)
     return word_weight_dict
+
+def get_centroid_of_gestures(vector, vector_model, gestures_subset, input_vector_dimension):
+    centroid_vector = [0]*input_vector_dimension
+    for gesture in gestures_subset:
+        v = vector[gesture][vector_model]
+        centroid_vector[:] = [sum(x) for x in zip(centroid_vector, v)]
+    centroid_vector[:] = [x/len(gestures_subset) for x in centroid_vector]
+    return centroid_vector
 
 def perform_relevance_feeback(query_gesture, vectors, vector_model, relevant_gestures, irrelevant_gestures, word_position_dictionary, component_position_dictionary, sensor_position_dictionary):
     gestures = list(vectors.keys())
     # if choose_relative_importance_type == 0:
-    input_vector_dimension = len(vectors[gestures[0]][0])
+    input_vector_dimension = len(vectors[query_gesture][vector_model])
     adjacency_graph = create_adjacency_graph_for_words(vectors, gestures, input_vector_dimension)
     # elif choose_relative_importance_type == 1:
     #     input_vector_dimension = 4
@@ -189,16 +194,17 @@ def perform_relevance_feeback(query_gesture, vectors, vector_model, relevant_ges
     relevant_gesture_ids = retrieve_gesture_ids(relevant_gestures, gestures, input_vector_dimension)
     irrelevant_gestures_ids = retrieve_gesture_ids(irrelevant_gestures, gestures, input_vector_dimension)
 
-    word_weight_dict = dict()
+    relevant_word_weight_dict = dict()
     if len(relevant_gesture_ids) > 0:
         print("\nRunning PPR on graph with relevant gestures as seed...")
         pgr_output = pageRank(adjacency_graph, relevant_gesture_ids, beta = 0.9)
-        process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
+        process_page_rank_output(pgr_output, input_vector_dimension, relevant_word_weight_dict)
 
+    irrelevant_word_weight_dict = dict()
     if len(irrelevant_gestures_ids) > 0:
         print("Running PPR on graph with irrelevant gestures as seed...")
         pgr_output = pageRank(adjacency_graph, irrelevant_gestures_ids, beta = 0.9)
-        process_page_rank_output(pgr_output, input_vector_dimension, word_weight_dict)
+        process_page_rank_output(pgr_output, input_vector_dimension, irrelevant_word_weight_dict)
 
     list_of_all_words = []
     position_to_word_dictionary = {}
@@ -225,19 +231,24 @@ def perform_relevance_feeback(query_gesture, vectors, vector_model, relevant_ges
     component_weight_list = [(0,0)]*4
     sensor_weight_list = [(0,0)]*20
 
+    centroid_relevant_gestures = get_centroid_of_gestures(vectors, vector_model, relevant_gestures, input_vector_dimension)
+    centroid_irrelevant_gestures = get_centroid_of_gestures(vectors, vector_model, irrelevant_gestures, input_vector_dimension)
     # print("Original query vector : " + str(modified_query_vector))
 
-    for k,v in word_weight_dict.items():
+    for k,v in relevant_word_weight_dict.items():
         word_index = list_of_all_words.index(position_to_word_dictionary[k])
         component_index = list_of_all_components.index(position_to_component_dictionary[k])
         sensor_index = list_of_all_sensors.index(position_to_sensor_dictionary[k])
         word_weight_list[word_index] = (position_to_word_dictionary[k], word_weight_list[word_index][1] + v)
         component_weight_list[component_index] = (position_to_component_dictionary[k], component_weight_list[component_index][1] + v)
         sensor_weight_list[sensor_index] = (position_to_sensor_dictionary[k], sensor_weight_list[sensor_index][1] + v)
-        if v > 0:
-            modified_query_vector[k] = 1
-        else:
-            modified_query_vector[k] = 0
+        # if v > 0:
+        #     modified_query_vector[k] = 1
+        # else:
+        #     modified_query_vector[k] = 0
+
+        modified_query_vector[k] = modified_query_vector[k] + 100*relevant_word_weight_dict[k]*centroid_relevant_gestures[k]
+        - 100*irrelevant_word_weight_dict[k]*centroid_irrelevant_gestures[k]
 
     # print("Modified query vector : " + str(modified_query_vector))
 
@@ -269,7 +280,7 @@ def main():
     vector_model=0
 
     gestures = list(vectors.keys())
-    input_vector_dimension = len(vectors[gestures[0]][vector_model])
+    input_vector_dimension = len(vectors[query_gesture][vector_model])
 
     lsh = LSH(num_layers=4, num_hash_per_layer=8, input_dimension=input_vector_dimension, is_vector_matrix=True, vector_model=vector_model)
     lsh.index(vectors)
