@@ -83,8 +83,6 @@ def pagerank(graph, beta, topic, maxiter = 1000):
         neighbours = graph.neighbors(node)
         for neighbour in neighbors:
             matrix[neighbour][node] += (1-beta) * 1/len(topic)
-    
-    print(matrix>=0)
 
     y = (np.ones((1, len(graph))) * 1.0/len(graph.nodes)).T
     

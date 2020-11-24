@@ -9,6 +9,9 @@ from lsh import deserialize_vector_file, LSH
 class ProbabilityFeedbackNBModel():
     """
     This class provides methods to run relevent feedback system.
+    So what is happening here is that we use NaiveBayes method (with the assumption that words are independent), to see if the given gesture is relevent or not.
+    By doing so, we reduce our scope to only consider the gestures we find relevent. The scoping is done by our NaiveBayes model as it removes the gestures that 
+    of no interest to us. Then we run LSH again on the new set of gestures, and provide the results for the user's query.
     """
     def __init__(self, vector_model, num_layers=4, num_hash_per_layer=8):
         # word position dictionary
@@ -36,16 +39,16 @@ class ProbabilityFeedbackNBModel():
         return results
 
     def make_data(self, relevent_ids, irrevelvent_ids):
-        similarity_dict = Phase3task1.task1_initial_setup(2, self.vector_model, create_vectors=False)
+        # similarity_dict = Phase3task1.task1_initial_setup(2, self.vector_model, create_vectors=False)
         
         train_relevent = []
-        for relevent in relevent_ids:
-            train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
+        # for relevent in relevent_ids:
+        #     train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
         train_relevent.extend(relevent_ids)
 
         train_irrelevent = []
-        for irrelevent in irrevelvent_ids:
-            train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
+        # for irrelevent in irrevelvent_ids:
+        #     train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
         train_irrelevent.extend(irrevelvent_ids)
 
         train_irrelevent = [i for i in train_irrelevent if i not in train_relevent]

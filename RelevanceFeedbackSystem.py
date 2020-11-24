@@ -5,26 +5,11 @@ from Phase2 import task1
 from lsh import deserialize_vector_file, LSH
 from Phase1 import helper
 
-class RelevanceFeedbackSystem:
-    """
-    This class is for implmentation of relevence feedback system using vector space model as well as probabilistic method. 
-    Assumption: For probabilistic model, we assume a Binary Independence Model, so vector representation are converted to binary
-    """
-    def __init__(self, feedback_model, ):
-        """
-        """
-        # get all documents from database
-        # get word position dict
-        # 
-
-    def initial_query():
-        pass
-
-
-class PrababilityFeedbackModel(RelevanceFeedbackSystem):
-    """
-    This class provides methods to run relevent feedback system.
-    """
+"""
+This class is for implmentation of relevence feedback system using vector space model as well as probabilistic method. 
+Assumption: For probabilistic model, we assume a Binary Independence Model, so vector representation are converted to binary
+"""
+class PrababilityFeedbackModel():
     def __init__(self, vector_model, num_layers=4, num_hash_per_layer=8):
         # word position dictionary
         word_pos_dict_dir = "intermediate/word_position_dictionary.json"
@@ -59,6 +44,9 @@ class PrababilityFeedbackModel(RelevanceFeedbackSystem):
         self.r1 = [0.5 for i in range(len(query_document))]
         self.n1 = np.divide(np.sum(documents, axis=0), len(documents))
 
+        self.n2 = [0.5 for i in range(len(query_document))]
+        self.r2 = np.divide(np.sum(documents, axis=0), len(documents))
+
         return results
 
     def iteration(self, relevent_gesture_ids, irrelevent_gesture_ids, t=15):
@@ -84,18 +72,40 @@ class PrababilityFeedbackModel(RelevanceFeedbackSystem):
                 self.r1[i] = (l[i] + 0.5) / (L + 1)
                 self.n1[i] = (k[i]-l[i]+0.5 )/(K+L+1)
 
+        L2 = len(irrelevent_ids) + len(relevent_ids)
+        K2 = len(relevent_ids)
+
         
+        irrelevent_documents = np.array([[1 if _>0 else 0 for _ in self.vectors[gesture][vector_model]] for gesture in irrelevent_ids])
+        
+        l = irrelevent_documents.sum(axis=0)
+        k = np.divide(l, len(irrelevent_documents))    
+        for i in range(len(query_document)):
+            if query_document[i] != 0:
+                self.r2[i] = (l[i] + 0.5) / (L2 + 1)
+                self.n2[i] = (k[i]-l[i]+0.5 )/(K2+L2+1)
+
+
         weight = []
         for i in range(len(query_document)):
             if (self.n1[i])==0:
-                p1 = 1 #self.r1[i]*(1-self.n1[i])/(1-self.r1[i])
+                p1 = 0
             else:
                 p1 = self.r1[i]*(1-self.n1[i]) / (self.n1[i] * (1-self.r1[i]))
-            weight.append(p1)
+
+            if (self.n2[i])==0:
+                p2 = 0
+            else:
+                p2 = self.r2[i]*(1-self.n2[i]) / (self.n2[i] * (1-self.r2[i]))
+            
+            if p1>p2:
+                weight.append(p1)
+            else:
+                weight.append(-p1)
 
         sw = len(weight)
-        weight = [(_) for i,_ in enumerate(weight)]
-        weight = helper.min_max_scaler([weight], feature_range=(min(self.query), max(self.query)))[0]
+        weight = [self.query[i]*_ for i,_ in enumerate(weight)]
+        # weight = helper.min_max_scaler([weight], feature_range=(min(self.query), max(self.query)))[0]
         # print("Query: ", [(i,_) for i,_ in enumerate(self.query) if _!=0 ][:10])
         # print("Updated query: ", [(i,_) for i,_ in enumerate(weight) if _!=0 ][:10])
         # self.query = weight
