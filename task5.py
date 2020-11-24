@@ -2,6 +2,7 @@ import json
 
 from lsh import LSH
 import numpy as np
+from task1 import pageRank
 
 """
 Deserialize vector input
@@ -35,31 +36,6 @@ def deserialize_sensor_position_dictionary(file_name):
         sensor_position_dictionary = json.load(read_file)
     return sensor_position_dictionary
 
-# Different PPR Code for classification
-def pageRank(graph, seed_gestures, beta=0.85, epsilon=0.000001):
-    nodes = len(graph)
-
-    # # Keeping record of index and gestures IDs (Since gesture ID values may not be in order)
-    M = graph / np.sum(graph, axis=0)
-
-    # Initializing Teleportation matrix and Page Rank Scores with Zeros for all images
-    teleportation_matrix = np.zeros(nodes)
-    pageRankScores = np.zeros(nodes)
-
-    # Updating Teleportation and Page Rank Score Matrices with 1/num_of_input images for the input images.
-    for image_id in seed_gestures:
-        teleportation_matrix[image_id] = 1 / len(seed_gestures)
-        pageRankScores[image_id] = 1 / len(seed_gestures)
-
-    # Calculating Page Rank Scores
-    while True:
-        oldPageRankScores = pageRankScores
-        pageRankScores = (beta * np.dot(M, pageRankScores)) + ((1 - beta) * teleportation_matrix)
-        if np.linalg.norm(pageRankScores - oldPageRankScores) < epsilon:
-            break
-
-    # Normalizing & Returning Page Rank Scores
-    return pageRankScores / sum(pageRankScores)
 
 def create_adjacency_graph_for_words(vectors, gestures, input_vector_dimension):
     # no edges between gestures
