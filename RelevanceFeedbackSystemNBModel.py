@@ -1,10 +1,10 @@
 import numpy as np
 import json
-from sklearn.naive_bayes import GaussianNB
 
 from Phase2 import task1
 import task1 as Phase3task1
 from lsh import deserialize_vector_file, LSH
+from GausianNaiveBayesClassifier import GausianNaiveBayesClassifier, GaussianNaiveBayesClf
 
 class ProbabilityFeedbackNBModel():
     """
@@ -61,8 +61,14 @@ class ProbabilityFeedbackNBModel():
     def iteration(self, relevent_ids, irrelevent_ids, t=15):
         x_train, y_train = self.make_data(relevent_ids, irrelevent_ids)
 
-        clf = GaussianNB()
-        clf.fit(np.array(x_train), np.array(y_train))
+        assert len(x_train) == len(y_train)
+        # from sklearn.naive_bayes import GaussianNB
+        # clf = GaussianNB()
+        # clf.fit(np.array(x_train), np.array(y_train))
+        # clf = GausianNaiveBayesClassifier(x_train, y_train)
+        clf = GaussianNaiveBayesClf(x_train, y_train)
+        print(clf.imp)
+
         y_pred = clf.predict([self.vectors[gesture][self.vector_model] for gesture in self.vectors])
         self.vectors = {gesture: self.vectors[gesture] for i,gesture in enumerate(self.vectors) if y_pred[i] == 1}
         self.gesture_ids = list(self.vectors.keys())
