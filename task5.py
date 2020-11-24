@@ -1,7 +1,5 @@
 import json
 
-from networkx.generators.classic import complete_graph
-from numpy.lib.financial import irr
 from lsh import LSH
 import numpy as np
 
