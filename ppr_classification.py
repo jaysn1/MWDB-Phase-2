@@ -1,4 +1,4 @@
-from task1 import pagerank, task1_initial_setup
+from task1 import pageRank, task1_initial_setup
 import json 
 
 import numpy as np

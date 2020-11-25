@@ -36,10 +36,10 @@ def main():
 
         k = int(input("Enter value of k (for outgoing edges): "))
         m = int(input("Enter value of m (for dominant gestures): "))
-        n = int(input("\tEnter numbe of seed nodes: "))
+        n = int(input("Enter numbe of seed nodes: "))
         seed_nodes = []
         for i in range(n):
-            seed_nodes.append(input(f"Enter name of seed node {i+1}: "))
+            seed_nodes.append(input(f"\tEnter name of seed node {i+1}: "))
         dominant_gestures = task1.main(gesture_gesture_similarity, k, m, seed_nodes, _edge_labels = False)
         print(dominant_gestures)
         

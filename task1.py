@@ -226,21 +226,9 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
     graph = np.zeros((len(G), len(G)))
     for k in G.keys():
         for neighbour in G[k]:
-            graph[node_map[k], node_map[k]] = 1
+            graph[node_map[neighbour]][node_map[k]] = 1
 
     pr = pageRank(graph, topic, beta)
-
-    # graph = nx.relabel_nodes(graph, node_inv_map, copy=True)
-    # pos=nx.spring_layout(graph)
-    # nx.draw(graph, pos, with_labels = True)
-    # pr_scaled = min_max_scaler([pr], feature_range=(100, 1000))
-
-    # nx.draw(graph, pos, node_size = pr_scaled)
-    # if '_edge_labels' in kwargs and kwargs['_edge_labels']==True:
-    #     edge_labels = dict([((u,v,),d['weight']) for u,v,d in graph.edges(data=True)])
-    #     nx.draw_networkx_edge_labels(graph,pos,edge_labels=edge_labels)
-
-    # plt.show()
 
     ppr_score = {node_inv_map[i]: pr[i] for i in range(len(G))}
     top_m_ppr = [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
@@ -271,9 +259,9 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.8, **kwargs):
 if __name__=="__main__":
 
     gesture_gesture_similarity = task1_initial_setup(1, 0, False)
-    viz = True
+    viz = False
 
-    k, m = 4, 3
-    seed_nodes = ["1", "2", "3", "4"]
+    k, m = 3, 10
+    seed_nodes = ["1", "2", "3", "4", "5"]
     dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, viz=viz, _edge_labels = False)
     print(dominant_gestures)
