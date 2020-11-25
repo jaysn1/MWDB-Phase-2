@@ -31,7 +31,7 @@ class ProbabilityFeedbackNBModel():
         self.num_layers = num_layers
         self.num_hash_per_layer = num_hash_per_layer
         self.input_vector_dimension = len(self.vectors[self.gesture_ids[0]][vector_model])
-        self.lsh = LSH(self.num_layers, self.num_hash_per_layer, input_dimension=self.input_vector_dimension)
+        self.lsh = LSH(self.num_layers, self.num_hash_per_layer, input_dimension=self.input_vector_dimension, is_vector_matrix=True, vector_model=self.vector_model)
         self.lsh.index(self.vectors)
 
     def initial_query(self, query_id, t=15):
@@ -78,10 +78,10 @@ class ProbabilityFeedbackNBModel():
         self.vectors = {gesture: self.vectors[gesture] for i,gesture in enumerate(self.vectors) if y_pred[i] == 1}
         self.gesture_ids = list(self.vectors.keys())
 
-        self.lsh = LSH(self.num_layers, self.num_hash_per_layer, input_dimension=self.input_vector_dimension)
+        self.lsh = LSH(self.num_layers, self.num_hash_per_layer, input_dimension=self.input_vector_dimension, is_vector_matrix=True, vector_model=self.vector_model)
         self.lsh.index(self.vectors)
         
-        return self.lsh.query(point=self.query, t=15, vectors=self.vectors)
+        return self.lsh.query(point=self.query, t=t, vectors=self.vectors)
         
 
 if __name__ == '__main__':

@@ -96,7 +96,6 @@ def pageRank(graph, seed_gestures, beta=0.85, epsilon=0.000001):
     # Normalizing & Returning Page Rank Scores
     return pageRankScores / sum(pageRankScores)
 
-
 def task1_initial_setup(user_option, vector_model=0, create_vectors=False):
     """
     """
@@ -254,14 +253,11 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
         plt.show()
     return top_m_ppr
 
-
-
 if __name__=="__main__":
-
     gesture_gesture_similarity = task1_initial_setup(2, 0, False)
     viz = False
-
     k, m = 10, 5
     seed_nodes = ["1", "2", "3", "4"]
+    
     dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, viz=viz, _edge_labels = False)
     print(dominant_gestures)

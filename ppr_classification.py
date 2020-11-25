@@ -173,7 +173,6 @@ def classifier(graph, labels, input_image_label_pair, actual_labels):
 
 
 def main():
-    print('Loading Image-Image Similarity Matrix...')
     data = task1_initial_setup(1, 0, False)
     # gr_m = task1_initial_setup(1, 0, False)
     graph = pd.DataFrame.from_dict(data).values

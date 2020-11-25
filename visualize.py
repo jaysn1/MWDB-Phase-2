@@ -10,7 +10,7 @@ def visualize(data, plt, N=None, resolution=4, file=''):
     """
     fig = plt.figure 
     plt.set_title(file)
-    fig.show()
+    # fig.show()
     fig.canvas.draw()
     if N == None:
         N = data.shape[0]

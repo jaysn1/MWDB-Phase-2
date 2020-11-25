@@ -136,7 +136,7 @@ def main():
     all_labels_dir = 'data/all_labels.xlsx'
     training_labels = read_labels(training_labels_dir)
     all_labels = read_labels(all_labels_dir)
-    test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])]
+    test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])].copy()
     
     training_labels['label'] = training_labels['label'].astype('category')
     training_labels['label_code'] = training_labels['label'].cat.codes
@@ -159,7 +159,7 @@ def main():
 
     # Code to call PPR classifier
     # inp = int(input("Do you want to create vector model for gestures (0/1)?: "))
-    user_option = int(input("\n1:DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n 6: ED \n7: DTW\nWhat to use for gesture gesture matrix? "))
+    user_option = int(input("\n 1: DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n 6: ED \n7: DTW\n What to use for gesture gesture matrix? "))
     if user_option not in [6,7]:
         vector_model = int(input("What vector model to use (TF: 0, TF-IDF:1)?: "))
 
