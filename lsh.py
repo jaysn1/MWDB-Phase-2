@@ -100,6 +100,12 @@ class LSH:
     """
     def calculate_l2_distance(self, point1, point2):
         return np.linalg.norm(np.array(point1)-np.array(point2))
+        # s = 0
+        # for i in range(len(point1)):
+        #     s += weights[i] *((point2[i] - point1[i])**2)
+        # if s == 0:
+        #     return 0
+        # return pow(s, -2)
 
     
 """
