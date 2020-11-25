@@ -173,10 +173,10 @@ def perform_relevance_feeback(query_gesture, vectors, vector_model, relevant_ges
     return modified_query_vector
 
 def main():
-    vectors_file_name = "Phase2/intermediate/vectors_dictionary.json"
-    word_position_dictionary_file_name = "Phase2/intermediate/word_position_dictionary.json"
-    component_position_dictionary_file_name = "Phase2/intermediate/component_position_dictionary.json"
-    sensor_position_dictionary_file_name = "Phase2/intermediate/sensor_position_dictionary.json"
+    vectors_file_name = "intermediate/vectors_dictionary.json"
+    word_position_dictionary_file_name = "intermediate/word_position_dictionary.json"
+    component_position_dictionary_file_name = "intermediate/component_position_dictionary.json"
+    sensor_position_dictionary_file_name = "intermediate/sensor_position_dictionary.json"
 
     vectors = deserialize_vector_file(vectors_file_name)
     word_position_dictionary = deserialize_word_position_dictionary(word_position_dictionary_file_name)

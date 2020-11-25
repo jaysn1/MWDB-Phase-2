@@ -270,9 +270,10 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
 
 if __name__=="__main__":
     gesture_gesture_similarity = task1_initial_setup(2, 0, False)
+    # print(gesture_gesture_similarity.keys())
     viz = True
     k, m = 10, 5
-    seed_nodes = ["1", "2", "3", "4"]
+    seed_nodes = ["1_1", "1_2", "1_3", "1_4"]
     
     dominant_gestures = main(gesture_gesture_similarity, k, m, seed_nodes, viz=viz, _edge_labels = False)
     print(dominant_gestures)

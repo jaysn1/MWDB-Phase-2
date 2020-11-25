@@ -1,49 +1,6 @@
-import numpy as np
-from scipy.stats import multivariate_normal as mvn
-class GausianNaiveBayesClassifier:
-    def __init__(self, data, predictions):
-        # data will be vectors (2D)
-        # prediction will be vector with same rows as data
-        self.X = np.array(data)
-        self.Y = np.array(predictions)
-
-        self.class_labels = list(set(self.Y))
-        self.prioir = {}
-        self.class_data = {c:[] for c in self.class_labels}
-        for (x,y) in zip(self.X, self.Y):
-            self.class_data[y].append(x)
-            
-        self.class_mean = {}
-        self.class_var = {}
-        for c in self.class_labels:
-            mean, var = self.get_mean_var(self.class_data[c])
-            self.class_mean[c] = mean
-            self.class_var[c] = var
-            # self.pdf = 
-            self.prioir[c] = len(self.class_data[c])/len(self.X)
-
-    # Get mean and variance of each image
-    def get_mean_var(self, X):
-        mean = np.mean(X, axis=0) #[np.mean(np.mean(X , axis = 0)), np.mean(np.var(X , axis = 0))]
-        var = np.var(X, axis=0) #[np.var(np.mean(X , axis = 0)), np.var(np.var(X , axis = 0))]
-        return mean, var
-
-    # Predicts the probability of an image being in a class using the multivariate formula.
-    def predict(self, X):
-        rows = len(X)
-        columns = len(self.class_labels)
-        pred_prob = np.zeros((rows,columns))
-        predictions = []
-        for i in range(len(X)):
-            for j in range(columns):
-                c = self.class_labels[j]
-                pred_prob[i,j] = (mvn.logpdf(X[i], mean=self.class_mean[c], cov=self.class_var[c], allow_singular=True) + np.log(self.prioir[c]))
-            predictions.append(self.class_labels[np.argmax(pred_prob[i,:])])
-        return predictions
-
-# ref: https://github.com/ScienceKot/mysklearn/blob/master/naive_bayes/gauss.py
 import math
 import numpy as np
+# ref: https://github.com/ScienceKot/mysklearn/blob/master/naive_bayes/gauss.py
 class GaussianNaiveBayesClf:
     def __init__(self, X, y):
         self.X = np.array(X)
@@ -145,9 +102,6 @@ class GaussianNaiveBayesClf:
 if __name__ == '__main__':
     from sklearn.datasets import make_blobs
     X, y = make_blobs(n_samples=5, centers=2, n_features=2, random_state=1)
-    # print(y)
-    # obj = GausianNaiveBayesClassifier(X, y)
-    # print(obj.predict(X))
     print(y)
     obj = GaussianNaiveBayesClf(X, y)
     pred = obj.predict(X)

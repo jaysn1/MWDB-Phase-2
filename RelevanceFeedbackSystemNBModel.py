@@ -4,7 +4,7 @@ import json
 from Phase2 import task1
 import task1 as Phase3task1
 from lsh import deserialize_vector_file, LSH
-from GausianNaiveBayesClassifier import GausianNaiveBayesClassifier, GaussianNaiveBayesClf
+from GausianNaiveBayesClassifier import GaussianNaiveBayesClf
 
 class ProbabilityFeedbackNBModel():
     """
@@ -63,10 +63,6 @@ class ProbabilityFeedbackNBModel():
         x_train, y_train = self.make_data(relevent_ids, irrelevent_ids)
 
         assert len(x_train) == len(y_train)
-        # from sklearn.naive_bayes import GaussianNB
-        # clf = GaussianNB()
-        # clf.fit(np.array(x_train), np.array(y_train))
-        # clf = GausianNaiveBayesClassifier(x_train, y_train)
         clf = GaussianNaiveBayesClf(x_train, y_train)
         print("Relative importance highest 10: ")
         rel_imp = [(self.word_position_dict[i],_) for i,_ in sorted(enumerate(clf.imp), key=lambda x :x[1] ,reverse=True)]
@@ -83,8 +79,7 @@ class ProbabilityFeedbackNBModel():
         
         return self.lsh.query(point=self.query, t=t, vectors=self.vectors)
         
-
-if __name__ == '__main__':
+def main():
     vector_model = 0
     obj = ProbabilityFeedbackNBModel(vector_model=0, num_layers=4, num_hash_per_layer=5)
     print("\nInitial Results: ", [_[0] for _ in obj.initial_query(input("Query: "))])
@@ -93,4 +88,7 @@ if __name__ == '__main__':
         notrelevent_ids = list(map(lambda x:x.strip(), input("Not-relevent: ").split(",")))
         results = obj.iteration(relevent_ids, notrelevent_ids)
         print("\nResults: ", [_[0] for _ in results])
-        
+    
+
+if __name__ == '__main__':
+    main()    
