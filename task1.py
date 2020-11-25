@@ -31,6 +31,16 @@ from copy import deepcopy
 import numpy as np
 import matplotlib.pyplot as plt
 import os, json, pickle
+import fnmatch
+
+def delete_gesture_visualizations():
+    directory = "output"
+    path = "{}/{}".format(directory, "dominant_gestures")
+    if not os.path.exists(path):
+        os.mkdir(path)
+    for root, dirnames, filenames in os.walk(path):
+        for filename in fnmatch.filter(filenames, '*.png'):
+            os.remove(os.path.join(root,filename))
 
 
 def get_query_for_edit_distance(components, sensors, gesture_id, word_store, s):
@@ -233,9 +243,11 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
     top_m_ppr = [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
 
     if 'viz' in kwargs and kwargs['viz']:
+
         with open(parameters_dir) as f:
             data_parameters = json.load(f)
         data = data_parameters['directory']
+        delete_gesture_visualizations()
         resolution = data_parameters['resolution']
         for gesture in top_m_ppr:
             (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
@@ -249,13 +261,16 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
             visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
             visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
             
-            plt.show(block=False)
-        plt.show()
+            plt.savefig("{}/{}/{}".format("output", "dominant_gestures", f"{gesture}.png"))
+
+            # plt.show(block=False)
+        # plt.show()
+        print("Result images are stored in directory: output/dominant_gestures/")
     return top_m_ppr
 
 if __name__=="__main__":
     gesture_gesture_similarity = task1_initial_setup(2, 0, False)
-    viz = False
+    viz = True
     k, m = 10, 5
     seed_nodes = ["1", "2", "3", "4"]
     

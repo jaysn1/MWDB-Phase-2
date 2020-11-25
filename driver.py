@@ -7,6 +7,7 @@ from RelevanceFeedbackSystemNBModel import ProbabilityFeedbackNBModel
 import task1
 import task2
 import task5
+import task6
 from lsh import *
 
 def main():
@@ -102,8 +103,7 @@ def main():
                     break
 
         elif task==6:
-            
-            pass
+            task6.main()
 
         else:
             break

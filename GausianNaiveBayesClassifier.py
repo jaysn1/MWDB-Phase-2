@@ -63,6 +63,10 @@ class GaussianNaiveBayesClf:
                     self.imp[i] = area_1 / (area_0 + area_1)
                 else:
                     self.imp[i] = area_0 / (area_0 + area_1)
+        s = sum(self.imp)
+        if s != 0:
+            for i in range(len(self.imp)):
+                self.imp[i] = self.imp[i] / s
 
     def fit(self):
         ''' The fitting function '''
@@ -137,9 +141,6 @@ class GaussianNaiveBayesClf:
                     pred_class = cls
             pred.append(pred_class)
         return pred
-
-
-
 
 if __name__ == '__main__':
     from sklearn.datasets import make_blobs
