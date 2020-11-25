@@ -137,13 +137,8 @@ def main():
     training_labels_dir = 'data/labels.xlsx'
     # all_labels_dir = 'data/all_labels.xlsx'
     training_labels = read_labels(training_labels_dir)
-<<<<<<< HEAD
     # all_labels = read_labels(all_labels_dir)
     # test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])]
-=======
-    all_labels = read_labels(all_labels_dir)
-    test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])].copy()
->>>>>>> 7c0f52a4b63ea431e42834d77b27edd91a3d08a3
     
     training_labels['label'] = training_labels['label'].astype('category')
     training_labels['label_code'] = training_labels['label'].cat.codes
