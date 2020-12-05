@@ -193,8 +193,8 @@ def main():
     # print("PPR======================")
     # print(input_image_label_pair)
     
-    accuracy = classifier(graph, labels, input_image_label_pair, training_labels_dir)
-    print("PPR results saved in output/PPR_predictions.csv")
+    accuracy = classifier(graph, labels, input_image_label_pair)
+    print("PPR results saved in output/PPR_res_labels.json")
     
     # print("Personalised PageRank Classifier accuracy: " + str(accuracy))
         
