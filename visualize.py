@@ -18,3 +18,28 @@ def visualize(data, plt, N=None, resolution=4, file=''):
         xs, ys = range(len(data[i])), data[i]
         plt.plot(xs, ys, c=clrs[i]) #clrs[i])
         fig.canvas.draw()
+
+def main():
+    from Phase1.helper import min_max_scaler, load_data
+    import matplotlib.pyplot as plt
+
+    gestures = ['1', '1_1', '1_2']
+    data = "C:/Users/monil/Desktop/CSE 515 - MWDB/Project/phase3_git/data"
+    resolution=4
+
+    for gesture in gestures:
+        (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
+                    np.array(load_data(f"{data}/Y/{gesture}.csv")), 
+                    np.array(load_data(f"{data}/Z/{gesture}.csv")), 
+                    np.array(load_data(f"{data}/W/{gesture}.csv")))
+
+        plt.figure(figsize=(18,10))
+        visualize(x, plt.subplot(2,2,1), None, resolution, f'{gesture}-X')
+        visualize(y, plt.subplot(2,2,2), None, resolution, f'{gesture}-Y')
+        visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
+        visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
+        plt.show(block=False)
+    plt.show()
+    plt.close("all")
+if __name__=="__main__":
+    main()

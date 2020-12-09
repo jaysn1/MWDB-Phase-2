@@ -243,26 +243,24 @@ def main(gesture_gesture_matrix, k, m, seed_nodes, beta = 0.6, **kwargs):
     top_m_ppr = [_[0] for _ in sorted(ppr_score.items(), key=lambda x: x[1], reverse=True) ][:m]
 
     if 'viz' in kwargs and kwargs['viz']:
-
         with open(parameters_dir) as f:
             data_parameters = json.load(f)
         data = data_parameters['directory']
         delete_gesture_visualizations()
         resolution = data_parameters['resolution']
+        plt.figure(figsize=(18,10))
         for gesture in top_m_ppr:
             (x, y, z, w) = (np.array(load_data(f"{data}/X/{gesture}.csv")),
                         np.array(load_data(f"{data}/Y/{gesture}.csv")), 
                         np.array(load_data(f"{data}/Z/{gesture}.csv")), 
                         np.array(load_data(f"{data}/W/{gesture}.csv")))
-
-            plt.figure(figsize=(18,10))
             visualize(x, plt.subplot(2,2,1), None, resolution, f'{gesture}-X')
             visualize(y, plt.subplot(2,2,2), None, resolution, f'{gesture}-Y')
             visualize(z, plt.subplot(2,2,3), None, resolution, f'{gesture}-Z')
             visualize(w, plt.subplot(2,2,4), None, resolution, f'{gesture}-W')
             
             plt.savefig("{}/{}/{}".format("output", "dominant_gestures", f"{gesture}.png"))
-
+            plt.clf()
             # plt.show(block=False)
         # plt.show()
         print("Result images are stored in directory: output/dominant_gestures/")

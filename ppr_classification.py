@@ -32,7 +32,7 @@ def pageRank(graph, input_images, beta=0.85, epsilon=0.000001):
     # tr_labels = read_files(training_labels_dir)
     tr_labels = map_files()
 
-    print(nodes)
+    # print(nodes)
     # index_img_dict = tr_labels[0]
     img_index_dict = {str(y):str(x) for x,y in tr_labels.items()} # Step to make a dict with the gestures IDs as key and their serial numbers as values
 
@@ -42,7 +42,7 @@ def pageRank(graph, input_images, beta=0.85, epsilon=0.000001):
     teleportation_matrix = np.zeros(nodes)
     pageRankScores = np.zeros(nodes)
 
-    print(len(teleportation_matrix))
+    # print(len(teleportation_matrix))
 
     # Updating Teleportation and Page Rank Score Matrices with 1/num_of_input images for the input images.
     for image_id in input_images:
@@ -119,7 +119,7 @@ def labelling(output):
 
 def classifier(graph, labels, input_image_label_pair):
     # Calculating Personalized Page Rank for each label once.
-    print("Running PPR for each label")
+    # print("Running PPR for each label")
     output = []
     # output = {}
     label_dict = dict()
@@ -153,7 +153,6 @@ def classifier(graph, labels, input_image_label_pair):
 
 
 def main():
-    print('Loading Image-Image Similarity Matrix...')
     data = task1_initial_setup(1, 0, False)
     # print(data)
     graph = pd.DataFrame.from_dict(data).values
