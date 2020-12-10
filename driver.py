@@ -8,7 +8,7 @@ import task1
 import task2
 import task5
 import task6
-import lsh
+import lsh as LSH_Module
 from lsh import *
 
 def main():
@@ -50,11 +50,9 @@ def main():
 
         elif task==2:
             task2.main()
-            pass
 
         elif task==3:
-            lsh.main()
-            pass
+            LSH_Module.main()
 
         elif task==4:
             vector_model = int(input("Which vector model to use(0: TF, 1: TF-IDF): "))
@@ -65,8 +63,8 @@ def main():
             print("\nInitial Results: ", [_[0] for _ in results])
             
             while(True):  # Until user is satisfied or we do not have anymore results to show
-                relevent_ids = list(map(lambda x:x.strip(), input("relevent: ").split(",")))
-                notrelevent_ids = list(map(lambda x:x.strip(), input("Not-relevent: ").split(",")))
+                relevent_ids = list(map(lambda x:x.strip(), input("relevent(comma seperated): ").split(",")))
+                notrelevent_ids = list(map(lambda x:x.strip(), input("Not-relevent(comma seperated): ").split(",")))
                 t = int(input("Number of results: "))
                 results = obj.iteration(relevent_ids, notrelevent_ids, t)
                 print("\nResults: ", [_[0] for _ in results])

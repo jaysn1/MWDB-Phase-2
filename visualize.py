@@ -23,8 +23,8 @@ def main():
     from Phase1.helper import min_max_scaler, load_data
     import matplotlib.pyplot as plt
 
-    gestures = ['1', '1_1', '1_2']
-    data = "C:/Users/monil/Desktop/CSE 515 - MWDB/Project/phase3_git/data"
+    gestures = ['32', '32_3', '32_4', '32_5', '32_6']
+    data = "C:/Users/monil/Desktop/CSE 515 - MWDB/Project/Demo/Dataset1/data"
     resolution=4
 
     for gesture in gestures:

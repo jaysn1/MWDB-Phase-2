@@ -43,13 +43,13 @@ class ProbabilityFeedbackNBModel():
         similarity_dict = Phase3task1.task1_initial_setup(2, self.vector_model, create_vectors=False)
         
         train_relevent = []
-        for relevent in relevent_ids:
-            train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
+        # for relevent in relevent_ids:
+        #     train_relevent.extend([_[0] for _ in sorted(similarity_dict[relevent].items(), key=lambda x:-x[1])][:15])
         train_relevent.extend(relevent_ids)
 
         train_irrelevent = []
-        for irrelevent in irrevelvent_ids:
-            train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
+        # for irrelevent in irrevelvent_ids:
+        #     train_irrelevent.extend([_[0] for _ in sorted(similarity_dict[irrelevent].items(), key=lambda x:-x[1])][:15])
         train_irrelevent.extend(irrevelvent_ids)
 
         train_irrelevent = [i for i in train_irrelevent if i not in train_relevent]

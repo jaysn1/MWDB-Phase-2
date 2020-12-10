@@ -8,6 +8,7 @@ class GaussianNaiveBayesClf:
         self.fit()
 
         self.imp = [0 for _ in range(self.X.shape[1])]    
+
         means0, stds0 = self.means[0], self.std[0]
         means1, stds1 = self.means[1], self.std[1]
         # finding intersection point

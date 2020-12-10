@@ -13,7 +13,7 @@ import json
 
 
 def read_labels(labels_dir):
-    labels = pd.read_excel(labels_dir, header=None)
+    labels = pd.read_excel(labels_dir)
     labels.columns = ['id', 'label']
     return labels
 
@@ -79,10 +79,11 @@ class DecisionTreeClassifier:
         self.y_count = len(set(y))
         self.dimensionality = X.shape[1]
         self.root = self.extend(X, y)
-    
+        self.mapping = {0:"combinato", 1:"daccordo", 2:"vattene"}
+
     def predict(self, X):
-        mapping = {0:"combinato", 1:"daccordo", 2:"vattene"}
-        return pd.DataFrame([[key, mapping[self.predict_single(value)], self.predict_single(value)] for key, value in X.items()], columns=('id', 'label', 'label_code'))
+        
+        return pd.DataFrame([[key, self.mapping[self.predict_single(value)], self.predict_single(value)] for key, value in X.items()], columns=('id', 'label', 'label_code'))
     
     def get_split(self, X, y):
         m = y.size
@@ -135,29 +136,12 @@ class DecisionTreeClassifier:
 def main(): 
     K = 25
     training_labels_dir = 'data/labels.xlsx'
-    # all_labels_dir = 'data/all_labels.xlsx'
     training_labels = read_labels(training_labels_dir)
-    # all_labels = read_labels(all_labels_dir)
-    # test_labels = all_labels[~all_labels['id'].isin(training_labels['id'])]
     
     training_labels['label'] = training_labels['label'].astype('category')
     training_labels['label_code'] = training_labels['label'].cat.codes
-    # training_labels = training_labels.set_index('id')
-    
-    # test_labels['label'] = test_labels['label'].astype('category') 
-    # test_labels['label_code'] = test_labels['label'].cat.codes
-    
-    gestures = task1.calculate_pca(1, 10)[0]
-    print(type(gestures))
-    gest, gesture_ids = task1.read_vectors(1)
-    gestures = {}
-    for i, id in enumerate(gesture_ids):
-        gestures[gesture_ids[i]] = gest[i]
-    
-    print(type(gestures))
-    gestures = np.array(gestures)
-    print((gestures.shape))
-    
+    gestures = task1.calculate_pca(1, 10)[0]    
+
     unlabeled_gestures, labeled_gestures = split_data(gestures, training_labels)
     X_train, X_test, y_train = pd.DataFrame(labeled_gestures.values()).to_numpy(), pd.DataFrame(unlabeled_gestures.values()).to_numpy(),training_labels['label_code'].to_numpy()
     
@@ -168,12 +152,16 @@ def main():
     for k,v in results.to_dict().items():
         print(f"Gesture:- {k} (total {len(v)}): ", v[:K])
     print("kNN results saved in output/KNN_predictions.csv\n")
-    # accuracy = make_shift_accuracy(predictions)
-    
-    # print("KNN accuracy: ", accuracy)
-    
-    clf = DecisionTreeClassifier(max_depth=2)
+
+    # vector_model = 1
+    # ges, gids = task1.read_vectors(vector_model)
+    # gestures = {i:g for i,g in zip(gids, ges)}
+    # unlabeled_gestures, labeled_gestures = split_data(gestures, training_labels)
+    # X_train, X_test, y_train = pd.DataFrame(labeled_gestures.values()).to_numpy(), pd.DataFrame(unlabeled_gestures.values()).to_numpy(),training_labels['label_code'].to_numpy()
+        
+    clf = DecisionTreeClassifier(max_depth=6)
     clf.fit(X_train, y_train)
+    clf.mapping = {code:label for code, label in zip(training_labels['label_code'], training_labels['label'])}
     y_pred_test = clf.predict(unlabeled_gestures)
     y_pred_test.to_csv("output/DT_predictions.csv")
     print(f"\nDecision Tree Results(first {K}): ")
@@ -182,43 +170,42 @@ def main():
         print(f"Gesture:- {k} (total {len(v)}): ", v[:K])
     print("Decision Tree results saved in output/DT_predictions.csv\n\n")
     
-    # print("Decision Tree accuracy: ", float(sum([1 if _y == _y_pred else 0 for _y, _y_pred in zip(y_pred_test, y_test)])) / len(y_pred_test))
-    
     # Code to call PPR classifier
-    # inp = int(input("Do you want to create vector model for gestures (0/1)?: "))
-    user_option = 1#int(input("\n 1: DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n 6: ED \n7: DTW\n What to use for gesture gesture matrix? "))
+    print("For PPR based classification.")
+    user_option = int(input("\n 1: DOT\n 2: PCA\n 3: SVD\n 4: NMF\n 5: LDA\n What to use for gesture gesture matrix? "))
     if user_option not in [6,7]:
-        vector_model = 1#int(input("What vector model to use (TF: 0, TF-IDF:1)?: "))
+        vector_model = int(input("What vector model to use (TF: 0, TF-IDF:1)?: "))
     
     data = task1_initial_setup(user_option, vector_model, False)
     graph = pd.DataFrame.from_dict(data).values
-    
     labels = set()
-    
     # Labelled dataset for training
     input_image_label_pair = []
     tr_labels = read_files(training_labels_dir)
+    
     d = {}
     for i in tr_labels[0]:
         d[tr_labels[0][i]] = str(tr_labels[1][i])
-    
-    mapping = {"combinato":0, "daccordo":1, "vattene":2}
+    # removing extra that has been read from file
+    del d['Filename']
+
+    mapping = {v:k for k,v in d.items()}#{"combinato":0, "daccordo":1, "vattene":2}
     for line in d:
         image_id = str(line)
         label = d[line]
         labels.add(label)
         input_image_label_pair.append([image_id, label, mapping[label]])
     # print("PPR======================")
-    # print(input_image_label_pair)
     
     accuracy = classifier(graph, labels, input_image_label_pair)
-    print("PPR results saved in output/PPR_res_labels.json")
     with open("output/PPR_res_labels.json") as f:
         dic = json.load(f)
         print(f"\nPPR classification Results(first {K}): ")
         for k,v in dic.items():
             print(f"Gesture:- {k} (total {len(v)}): ", v[:K])
-         
+    print("PPR results saved in output/PPR_res_labels.json")
     
     # print("Personalised PageRank Classifier accuracy: " + str(accuracy))
         
+if __name__ == '__main__':
+    main()
